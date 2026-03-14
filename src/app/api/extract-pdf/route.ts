@@ -29,28 +29,14 @@ export async function POST(req: NextRequest) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = new Uint8Array(arrayBuffer);
 
-    // Polyfill DOMMatrix for pdfjs-dist in serverless environments (Vercel)
-    if (typeof globalThis.DOMMatrix === "undefined") {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (globalThis as any).DOMMatrix = class DOMMatrix {
-        m11 = 1; m12 = 0; m13 = 0; m14 = 0;
-        m21 = 0; m22 = 1; m23 = 0; m24 = 0;
-        m31 = 0; m32 = 0; m33 = 1; m34 = 0;
-        m41 = 0; m42 = 0; m43 = 0; m44 = 1;
-        a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
-        is2D = true; isIdentity = true;
-      };
-    }
+    // Use unpdf - designed for serverless environments (no DOMMatrix needed)
+    const { extractText } = await import("unpdf");
+    const result = await extractText(buffer);
+    const trimmed = (Array.isArray(result.text) ? result.text.join("\n") : result.text)?.trim();
 
-    const { PDFParse } = await import("pdf-parse");
-    const parser = new PDFParse({ data: buffer });
-    const result = await parser.getText();
-    const text = result.text?.trim();
-    await parser.destroy();
-
-    if (!text) {
+    if (!trimmed) {
       return NextResponse.json(
         { error: "Could not extract text from PDF. The file may be image-based or empty." },
         { status: 400 }
@@ -58,9 +44,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Limit text to ~8000 chars to avoid token limits
-    const truncatedText = text.length > 8000
-      ? text.substring(0, 8000) + "\n\n[... Document truncated for analysis ...]"
-      : text;
+    const truncatedText = trimmed.length > 8000
+      ? trimmed.substring(0, 8000) + "\n\n[... Document truncated for analysis ...]"
+      : trimmed;
 
     return NextResponse.json({ text: truncatedText });
   } catch (error) {
