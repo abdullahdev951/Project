@@ -29,26 +29,14 @@ export async function POST(req: NextRequest) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const data = new Uint8Array(arrayBuffer);
+    const buffer = Buffer.from(arrayBuffer);
 
-    // Import worker first to register it, then import the main library
-    await import("pdfjs-dist/legacy/build/pdf.worker.mjs");
-    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-
-    const doc = await pdfjs.getDocument({ data }).promise;
-    const pages: string[] = [];
-
-    for (let i = 1; i <= doc.numPages; i++) {
-      const page = await doc.getPage(i);
-      const content = await page.getTextContent();
-      const strings = content.items
-        .filter((item: Record<string, unknown>) => "str" in item)
-        .map((item: Record<string, unknown>) => item.str as string);
-      pages.push(strings.join(" "));
-    }
-
-    const text = pages.join("\n\n").trim();
-    await doc.destroy();
+    // Use pdf-parse with dynamic import for Vercel compatibility
+    const { PDFParse } = await import("pdf-parse");
+    const parser = new PDFParse({ data: buffer });
+    const result = await parser.getText();
+    const text = result.text?.trim();
+    await parser.destroy();
 
     if (!text) {
       return NextResponse.json(
