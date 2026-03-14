@@ -4,9 +4,11 @@ import { connectDB } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
 import { getUserIdFromRequest } from "@/lib/auth";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2026-02-25.clover",
-});
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY is not configured");
+  return new Stripe(key, { apiVersion: "2026-02-25.clover" });
+}
 
 const PLANS = {
   pro: {
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
     // Create or get Stripe customer
     let customerId = user.stripeCustomerId;
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await getStripe().customers.create({
         email: user.email,
         name: user.name,
         metadata: { userId: user._id.toString() },
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create checkout session
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],
