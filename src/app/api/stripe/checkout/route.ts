@@ -1,30 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
 import { connectDB } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
 import { getUserIdFromRequest } from "@/lib/auth";
 
-function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) throw new Error("STRIPE_SECRET_KEY is not configured");
-  return new Stripe(key, { apiVersion: "2026-02-25.clover" });
-}
-
 const PLANS = {
   pro: {
     name: "Pro Plan",
-    price: 1200, // $12 in cents
+    price: 1200,
     interval: "month" as const,
   },
   business: {
     name: "Business Plan",
-    price: 3900, // $39 in cents
+    price: 3900,
     interval: "month" as const,
   },
 };
 
 export async function POST(req: NextRequest) {
   try {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) {
+      return NextResponse.json({ error: "Stripe is not configured" }, { status: 500 });
+    }
+
+    const { default: Stripe } = await import("stripe");
+    const stripe = new Stripe(key, { apiVersion: "2026-02-25.clover" });
+
     const userId = getUserIdFromRequest(req);
     if (!userId) {
       return NextResponse.json({ error: "Please login first" }, { status: 401 });
@@ -43,10 +44,9 @@ export async function POST(req: NextRequest) {
 
     const selectedPlan = PLANS[plan as keyof typeof PLANS];
 
-    // Create or get Stripe customer
     let customerId = user.stripeCustomerId;
     if (!customerId) {
-      const customer = await getStripe().customers.create({
+      const customer = await stripe.customers.create({
         email: user.email,
         name: user.name,
         metadata: { userId: user._id.toString() },
@@ -56,8 +56,7 @@ export async function POST(req: NextRequest) {
       await user.save();
     }
 
-    // Create checkout session
-    const session = await getStripe().checkout.sessions.create({
+    const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],
