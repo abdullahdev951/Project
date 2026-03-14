@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import type Stripe from "stripe";
 import { connectDB } from "@/lib/mongodb";
 import { User } from "@/lib/models/User";
 
