@@ -87,6 +87,31 @@ function Donut({ segments, size = 200, thickness = 26 }: { segments: { value: nu
   );
 }
 
+function Sparkline({ color, points, className = "" }: { color: string; points: number[]; className?: string }) {
+  const w = 120;
+  const h = 38;
+  const max = Math.max(...points);
+  const min = Math.min(...points);
+  const range = max - min || 1;
+  const stepX = w / (points.length - 1);
+  const coords = points.map((v, i) => [i * stepX, h - ((v - min) / range) * (h - 6) - 3]);
+  const line = coords.map((c, i) => `${i === 0 ? "M" : "L"} ${c[0]},${c[1]}`).join(" ");
+  const area = `${line} L ${w},${h} L 0,${h} Z`;
+  const id = `spark-${color.replace("#", "")}`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className={`w-full h-9 ${className}`} preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.32" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#${id})`} />
+      <path d={line} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 /* ---------- sample showcase data for the rich widgets ---------- */
 
 const productSales = [
@@ -321,46 +346,84 @@ export default function DashboardPage() {
         </div>
 
         {/* Key Metrics Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger">
-          <div className="bg-[#141a22] rounded-2xl border border-[#1b222c] p-4 sm:p-5 card-hover">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center"><HiOutlineCurrencyDollar className="text-primary-light text-lg" /></div>
-              <HiOutlineTrendingUp className="text-primary-light text-lg" />
-            </div>
-            <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider mb-1">Monthly Revenue</p>
-            <p className="text-xl sm:text-2xl font-extrabold text-white">{formatCurrency(data.monthlyRevenue)}</p>
-          </div>
-
-          <div className="bg-[#141a22] rounded-2xl border border-[#1b222c] p-4 sm:p-5 card-hover">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center"><HiOutlineExclamationCircle className="text-red-400 text-lg" /></div>
-              <HiOutlineTrendingDown className="text-red-400 text-lg" />
-            </div>
-            <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider mb-1">Monthly Expenses</p>
-            <p className="text-xl sm:text-2xl font-extrabold text-white">{formatCurrency(data.monthlyExpenses)}</p>
-          </div>
-
-          <div className={`bg-[#141a22] rounded-2xl border ${isProfit ? "border-primary/30" : "border-red-800/30"} p-4 sm:p-5 card-hover`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className={`w-10 h-10 rounded-xl ${isProfit ? "bg-primary/10" : "bg-red-500/10"} flex items-center justify-center`}>
-                {isProfit ? <HiOutlineArrowTrendingUp className="text-primary-light text-lg" /> : <HiOutlineArrowTrendingDown className="text-red-400 text-lg" />}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger">
+          {/* Revenue */}
+          <div className="relative overflow-hidden rounded-2xl border border-[#1b222c] bg-gradient-to-br from-primary/10 via-[#141a22] to-[#141a22] p-5 card-hover">
+            <div className="absolute -right-8 -top-8 w-28 h-28 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <HiOutlineCurrencyDollar className="text-primary-light text-xl" />
+                </div>
+                <span className="flex items-center gap-1 text-[11px] font-semibold text-primary-light bg-primary/10 px-2 py-1 rounded-full">
+                  <HiOutlineTrendingUp /> Revenue
+                </span>
               </div>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isProfit ? "bg-primary/15 text-primary-light" : "bg-red-900/30 text-red-400"}`}>{isProfit ? "PROFIT" : "LOSS"}</span>
+              <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Monthly Revenue</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-white animate-count">{formatCurrency(data.monthlyRevenue)}</p>
+              <Sparkline color="#00a76f" points={[8, 12, 9, 15, 13, 18, 22]} className="mt-3" />
             </div>
-            <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider mb-1">Monthly {isProfit ? "Profit" : "Loss"}</p>
-            <p className={`text-xl sm:text-2xl font-extrabold ${isProfit ? "text-primary-light" : "text-red-400"}`}>{isProfit ? "+" : "-"}{formatCurrency(Math.abs(profit))}</p>
-            <p className="text-[10px] text-slate-500 mt-1">{profitMargin.toFixed(1)}% margin</p>
           </div>
 
-          <div className="bg-[#141a22] rounded-2xl border border-[#1b222c] p-4 sm:p-5 card-hover">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center"><HiOutlineUserGroup className="text-sky-400 text-lg" /></div>
+          {/* Expenses */}
+          <div className="relative overflow-hidden rounded-2xl border border-[#1b222c] bg-gradient-to-br from-red-500/10 via-[#141a22] to-[#141a22] p-5 card-hover">
+            <div className="absolute -right-8 -top-8 w-28 h-28 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-11 h-11 rounded-xl bg-red-500/15 flex items-center justify-center">
+                  <HiOutlineExclamationCircle className="text-red-400 text-xl" />
+                </div>
+                <span className="flex items-center gap-1 text-[11px] font-semibold text-red-400 bg-red-500/10 px-2 py-1 rounded-full">
+                  <HiOutlineTrendingDown /> Expenses
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Monthly Expenses</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-white animate-count">{formatCurrency(data.monthlyExpenses)}</p>
+              <Sparkline color="#f87171" points={[18, 14, 16, 12, 15, 11, 9]} className="mt-3" />
             </div>
-            <p className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider mb-1">Customers</p>
-            <p className="text-xl sm:text-2xl font-extrabold text-white">{data.numberOfCustomers > 0 ? data.numberOfCustomers.toLocaleString() : "N/A"}</p>
-            {data.numberOfCustomers > 0 && data.monthlyRevenue > 0 && (
-              <p className="text-[10px] text-slate-500 mt-1">{formatCurrency(data.monthlyRevenue / data.numberOfCustomers)}/customer</p>
-            )}
+          </div>
+
+          {/* Profit / Loss */}
+          <div className={`relative overflow-hidden rounded-2xl border ${isProfit ? "border-primary/30" : "border-red-800/40"} bg-gradient-to-br ${isProfit ? "from-primary/15" : "from-red-500/15"} via-[#141a22] to-[#141a22] p-5 card-hover`}>
+            <div className={`absolute -right-8 -top-8 w-28 h-28 ${isProfit ? "bg-primary/15" : "bg-red-500/15"} rounded-full blur-2xl pointer-events-none`} />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-11 h-11 rounded-xl ${isProfit ? "bg-primary/15" : "bg-red-500/15"} flex items-center justify-center`}>
+                  {isProfit ? <HiOutlineArrowTrendingUp className="text-primary-light text-xl" /> : <HiOutlineArrowTrendingDown className="text-red-400 text-xl" />}
+                </div>
+                <span className={`text-[11px] font-bold px-2 py-1 rounded-full ${isProfit ? "bg-primary/15 text-primary-light" : "bg-red-900/30 text-red-400"}`}>
+                  {isProfit ? "PROFIT" : "LOSS"}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Monthly {isProfit ? "Profit" : "Loss"}</p>
+              <p className={`text-2xl sm:text-3xl font-extrabold animate-count ${isProfit ? "text-primary-light" : "text-red-400"}`}>{isProfit ? "+" : "-"}{formatCurrency(Math.abs(profit))}</p>
+              <div className="mt-3 flex items-center gap-2">
+                <div className="flex-1 h-1.5 rounded-full bg-[#0b0e13] overflow-hidden">
+                  <div className={`h-full rounded-full ${isProfit ? "bg-gradient-to-r from-primary to-primary-light" : "bg-gradient-to-r from-red-600 to-red-400"}`} style={{ width: `${Math.min(100, Math.abs(profitMargin))}%` }} />
+                </div>
+                <span className="text-[11px] text-slate-400">{profitMargin.toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Customers */}
+          <div className="relative overflow-hidden rounded-2xl border border-[#1b222c] bg-gradient-to-br from-sky-500/10 via-[#141a22] to-[#141a22] p-5 card-hover">
+            <div className="absolute -right-8 -top-8 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-11 h-11 rounded-xl bg-sky-500/15 flex items-center justify-center">
+                  <HiOutlineUserGroup className="text-sky-400 text-xl" />
+                </div>
+                <span className="text-[11px] font-semibold text-sky-400 bg-sky-500/10 px-2 py-1 rounded-full">Total</span>
+              </div>
+              <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Customers</p>
+              <p className="text-2xl sm:text-3xl font-extrabold text-white animate-count">{data.numberOfCustomers > 0 ? data.numberOfCustomers.toLocaleString() : "N/A"}</p>
+              {data.numberOfCustomers > 0 && data.monthlyRevenue > 0 ? (
+                <p className="text-[11px] text-slate-500 mt-3">{formatCurrency(data.monthlyRevenue / data.numberOfCustomers)} / customer</p>
+              ) : (
+                <Sparkline color="#38bdf8" points={[10, 12, 11, 14, 13, 16, 15]} className="mt-3" />
+              )}
+            </div>
           </div>
         </div>
 
