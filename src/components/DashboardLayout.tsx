@@ -13,6 +13,7 @@ import {
   HiOutlineLogout,
   HiOutlineSearch,
   HiOutlineMenuAlt2,
+  HiOutlineX,
 } from "react-icons/hi";
 
 export default function DashboardLayout({
@@ -24,6 +25,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   // Auth protection - redirect to login if not signed in
   useEffect(() => {
@@ -92,7 +94,8 @@ export default function DashboardLayout({
           {/* Right side */}
           <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
             <button
-              className="p-2 rounded-lg hover:bg-[#232b36] text-slate-400 transition-all relative"
+              onClick={() => setNotifOpen(true)}
+              className="p-2 rounded-lg hover:bg-[#232b36] text-slate-400 hover:text-white transition-all relative"
               title="Notifications"
             >
               <HiOutlineBell className="text-lg" />
@@ -139,6 +142,41 @@ export default function DashboardLayout({
 
         <SmallFooter />
       </div>
+
+      {/* Notifications slide-over panel */}
+      {notifOpen && (
+        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setNotifOpen(false)}
+          />
+          <div className="absolute top-0 right-0 h-full w-full max-w-sm bg-[#0b0e13] border-l border-[#1b222c] shadow-2xl flex flex-col animate-slide-down">
+            <div className="flex items-center justify-between h-16 px-5 border-b border-[#1b222c] flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <HiOutlineBell className="text-primary-light text-lg" />
+                <h3 className="text-white font-semibold">Notifications</h3>
+              </div>
+              <button
+                onClick={() => setNotifOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-[#161b22] text-slate-400 hover:text-white transition-all"
+              >
+                <HiOutlineX className="text-lg" />
+              </button>
+            </div>
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-6 gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#141a22] border border-[#1b222c] flex items-center justify-center">
+                <HiOutlineBell className="text-slate-600 text-3xl" />
+              </div>
+              <div>
+                <p className="text-white font-semibold">No notifications yet</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  You&apos;re all caught up. New alerts about your reports and analysis will show up here.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Logout Modal */}
       <LogoutModal

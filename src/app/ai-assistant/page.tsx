@@ -273,7 +273,7 @@ export default function AIAssistantPage() {
         )}
 
         {/* Chat Area */}
-        <div ref={chatRef} className="flex-1 overflow-y-auto py-4 bg-[#141a22] rounded-2xl border border-[#232b36] px-3 sm:px-4 md:px-6">
+        <div ref={chatRef} className="flex-1 overflow-y-auto py-4 px-1 sm:px-2">
           {error && (
             <div className="mb-3 flex items-center gap-2 p-3 rounded-xl bg-red-900/10 border border-red-800/30 text-red-400 text-sm">
               <HiOutlineExclamationCircle className="text-lg flex-shrink-0" />

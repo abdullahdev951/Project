@@ -18,6 +18,7 @@ import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineSparkles,
+  HiOutlineGlobe,
 } from "react-icons/hi";
 import {
   HiOutlineChatBubbleLeftRight,
@@ -28,63 +29,6 @@ import {
 } from "react-icons/hi2";
 
 /* ---------- inline chart helpers (no deps) ---------- */
-
-function AreaChart() {
-  const pts = [30, 41, 28, 51, 42, 108, 100];
-  const max = 120;
-  const w = 760;
-  const h = 230;
-  const stepX = w / (pts.length - 1);
-  const coords = pts.map((v, i) => [i * stepX, h - (v / max) * h]);
-  const line = coords.map((c, i) => `${i === 0 ? "M" : "L"} ${c[0]},${c[1]}`).join(" ");
-  const area = `${line} L ${w},${h} L 0,${h} Z`;
-  const months = ["Jan", "Feb", "March", "April", "May", "Jun", "Jul"];
-  return (
-    <div className="w-full">
-      <svg viewBox={`0 0 ${w} ${h + 28}`} className="w-full h-[200px]" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#00a76f" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#00a76f" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        {[0, 0.25, 0.5, 0.75, 1].map((g) => (
-          <line key={g} x1="0" y1={h * g} x2={w} y2={h * g} stroke="#1b222c" strokeDasharray="4 6" />
-        ))}
-        <path d={area} fill="url(#areaFill)" />
-        <path d={line} fill="none" stroke="#00a76f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="animate-draw-line" />
-        {coords.map((c, i) => (
-          <circle key={i} cx={c[0]} cy={c[1]} r="5" fill="#0b0e13" stroke="#00a76f" strokeWidth="3" />
-        ))}
-        {months.map((m, i) => (
-          <text key={m} x={i * stepX} y={h + 20} fill="#64748b" fontSize="12" textAnchor={i === 0 ? "start" : i === months.length - 1 ? "end" : "middle"}>
-            {m}
-          </text>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-function Donut({ segments, size = 200, thickness = 26 }: { segments: { value: number; color: string }[]; size?: number; thickness?: number }) {
-  const r = (size - thickness) / 2;
-  const c = 2 * Math.PI * r;
-  const total = segments.reduce((s, x) => s + x.value, 0);
-  let offset = 0;
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1b222c" strokeWidth={thickness} />
-      {segments.map((s, i) => {
-        const len = (s.value / total) * c;
-        const el = (
-          <circle key={i} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={s.color} strokeWidth={thickness} strokeDasharray={`${len} ${c - len}`} strokeDashoffset={-offset} strokeLinecap="round" />
-        );
-        offset += len;
-        return el;
-      })}
-    </svg>
-  );
-}
 
 function Sparkline({ color, points, className = "" }: { color: string; points: number[]; className?: string }) {
   const w = 120;
@@ -111,55 +55,31 @@ function Sparkline({ color, points, className = "" }: { color: string; points: n
   );
 }
 
-/* ---------- sample showcase data for the rich widgets ---------- */
-
-const productSales = [
-  { name: "Smartphones", value: 38.1, amount: "$22,120", color: "#00a76f" },
-  { name: "Laptops", value: 28.6, amount: "$4,510", color: "#f5a524" },
-  { name: "Headphones", value: 23.8, amount: "$800", color: "#38bdf8" },
-  { name: "Cameras", value: 9.5, amount: "$420", color: "#f87171" },
-];
-
-const orders = [
-  { id: "#DU005", amount: "$150", method: "Standard", date: "Jan 20, 2025", status: "Shipped" },
-  { id: "#DU004", amount: "$200", method: "Express", date: "Jan 22, 2025", status: "Pending" },
-  { id: "#DU003", amount: "$300", method: "Overnight", date: "Jan 18, 2025", status: "Cancel" },
-  { id: "#DU002", amount: "$560", method: "Overnight", date: "Jan 13, 2025", status: "Completed" },
-  { id: "#DU001", amount: "$560", method: "Overnight", date: "Jan 11, 2025", status: "Completed" },
-];
-
-const statusStyle: Record<string, string> = {
-  Shipped: "bg-sky-500/15 text-sky-400",
-  Pending: "bg-amber-500/15 text-amber-400",
-  Cancel: "bg-red-500/15 text-red-400",
-  Completed: "bg-primary/15 text-primary-light",
-};
-
-const locations = [
-  { country: "United States", amount: "$22,120", pct: 90, color: "#00a76f" },
-  { country: "India", amount: "$12,756", pct: 55, color: "#00a76f" },
-  { country: "United Kingdom", amount: "$8,864", pct: 38, color: "#38bdf8" },
-  { country: "Sweden", amount: "$6,124", pct: 26, color: "#f5a524" },
-];
-
-const topProducts = [
-  { name: "Transparent Sunglasses", sale: 454, revenue: "$50,000", rating: "5/5", status: "In Stock" },
-  { name: "Frames Still Life Glasses", sale: 454, revenue: "$50,000", rating: "5/5", status: "In Stock" },
-  { name: "Slightly Rounded Frame", sale: 124, revenue: "$30,000", rating: "4.0/5", status: "Low Stock" },
-  { name: "Colored-Transparent Sunglasses", sale: 124, revenue: "$30,000", rating: "4.0/5", status: "Low Stock" },
-  { name: "Rounded Frames Glasses", sale: 124, revenue: "$30,000", rating: "4.8/5", status: "Out of Stock" },
-];
-
-const stockStyle: Record<string, string> = {
-  "In Stock": "bg-sky-500/15 text-sky-400",
-  "Low Stock": "bg-amber-500/15 text-amber-400",
-  "Out of Stock": "bg-red-500/15 text-red-400",
-};
+function Donut({ segments, size = 200, thickness = 26 }: { segments: { value: number; color: string }[]; size?: number; thickness?: number }) {
+  const r = (size - thickness) / 2;
+  const c = 2 * Math.PI * r;
+  const total = segments.reduce((s, x) => s + x.value, 0);
+  let offset = 0;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1b222c" strokeWidth={thickness} />
+      {total > 0 &&
+        segments.map((s, i) => {
+          const len = (s.value / total) * c;
+          const el = (
+            <circle key={i} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={s.color} strokeWidth={thickness} strokeDasharray={`${len} ${c - len}`} strokeDashoffset={-offset} strokeLinecap="round" />
+          );
+          offset += len;
+          return el;
+        })}
+    </svg>
+  );
+}
 
 const ideas = [
   { title: "Create a Blog Post for your product", body: "Generate SEO-ready blog content from your business data in seconds with AI." },
-  { title: "Summarize your latest report", body: "Turn a 40-page PDF into a one-paragraph executive summary instantly." },
-  { title: "Draft a sales email campaign", body: "Personalized outreach emails based on your top customer segments." },
+  { title: "Summarize your latest report", body: "Turn a long PDF into a one-paragraph executive summary instantly." },
+  { title: "Draft a sales email campaign", body: "Personalized outreach emails based on your business and customers." },
 ];
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -207,14 +127,17 @@ export default function DashboardPage() {
     setShowDeleteConfirm(false);
   };
 
-  // Computed metrics
+  // Computed real metrics
   const profit = data ? data.monthlyRevenue - data.monthlyExpenses : 0;
   const profitMargin = data && data.monthlyRevenue > 0 ? (profit / data.monthlyRevenue) * 100 : 0;
+  const expenseRatio = data && data.monthlyRevenue > 0 ? (data.monthlyExpenses / data.monthlyRevenue) * 100 : 0;
+  const marketingRatio = data && data.monthlyRevenue > 0 ? (data.marketingBudget / data.monthlyRevenue) * 100 : 0;
   const isProfit = profit >= 0;
 
   const formatCurrency = (n: number) => {
-    if (n >= 1000000) return `$${(n / 1000000).toFixed(1)}M`;
-    if (n >= 1000) return `$${(n / 1000).toFixed(1)}K`;
+    if (!n) return "$0";
+    if (Math.abs(n) >= 1000000) return `$${(n / 1000000).toFixed(1)}M`;
+    if (Math.abs(n) >= 1000) return `$${(n / 1000).toFixed(1)}K`;
     return `$${n.toLocaleString()}`;
   };
 
@@ -227,7 +150,7 @@ export default function DashboardPage() {
         <div className="max-w-4xl mx-auto">
           <div className="mb-6 animate-fade-in-up">
             <p className="text-xs font-bold text-primary-light uppercase tracking-widest mb-2">Dashboard</p>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">Welcome to AI Assist Pro</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">Welcome, {firstName}</h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-2">Upload your business data to unlock AI-powered analytics</p>
           </div>
 
@@ -251,23 +174,17 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 stagger">
             <div className="bg-[#141a22] rounded-2xl border border-[#1b222c] p-5 card-hover">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                <HiOutlineCurrencyDollar className="text-primary-light text-lg" />
-              </div>
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3"><HiOutlineCurrencyDollar className="text-primary-light text-lg" /></div>
               <h3 className="text-sm font-bold text-white mb-1">Profit &amp; Loss</h3>
               <p className="text-xs text-slate-400 leading-relaxed">See your real profit margins, revenue breakdown and expense analysis.</p>
             </div>
             <div className="bg-[#141a22] rounded-2xl border border-[#1b222c] p-5 card-hover">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-3">
-                <HiOutlineLightningBolt className="text-amber-400 text-lg" />
-              </div>
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-3"><HiOutlineLightningBolt className="text-amber-400 text-lg" /></div>
               <h3 className="text-sm font-bold text-white mb-1">AI Insights</h3>
               <p className="text-xs text-slate-400 leading-relaxed">Get competition analysis, market value, and growth strategies from AI.</p>
             </div>
             <div className="bg-[#141a22] rounded-2xl border border-[#1b222c] p-5 card-hover">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center mb-3">
-                <HiOutlineChatBubbleLeftRight className="text-sky-400 text-lg" />
-              </div>
+              <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center mb-3"><HiOutlineChatBubbleLeftRight className="text-sky-400 text-lg" /></div>
               <h3 className="text-sm font-bold text-white mb-1">AI Suggestions</h3>
               <p className="text-xs text-slate-400 leading-relaxed">Ask AI for personalized tips to grow your business and increase profit.</p>
             </div>
@@ -277,7 +194,35 @@ export default function DashboardPage() {
     );
   }
 
-  // Has analysis data — show real dashboard + rich widgets
+  // Real revenue-allocation donut segments
+  const allocation = [
+    { name: "Expenses", value: data.monthlyExpenses, color: "#f87171" },
+    { name: "Marketing", value: data.marketingBudget, color: "#f5a524" },
+    { name: "Net Profit", value: Math.max(0, profit), color: "#00a76f" },
+  ].filter((s) => s.value > 0);
+
+  // Income vs Expenses bars (real)
+  const bars = [
+    { label: "Income", value: data.monthlyRevenue, color: "linear-gradient(to top,#00855a,#1fc98a)" },
+    { label: "Expenses", value: data.monthlyExpenses, color: "linear-gradient(to top,#dc2626,#f87171)" },
+    { label: "Marketing", value: data.marketingBudget, color: "linear-gradient(to top,#d97706,#fbbf24)" },
+    { label: isProfit ? "Profit" : "Loss", value: Math.abs(profit), color: isProfit ? "linear-gradient(to top,#00855a,#1fc98a)" : "linear-gradient(to top,#dc2626,#f87171)" },
+  ];
+  const barMax = Math.max(...bars.map((b) => b.value), 1);
+
+  const ratios = [
+    { label: "Profit Margin", value: `${profitMargin.toFixed(1)}%`, pct: Math.min(100, Math.max(0, profitMargin)), color: "#00a76f" },
+    { label: "Expense Ratio", value: `${expenseRatio.toFixed(1)}%`, pct: Math.min(100, expenseRatio), color: "#f87171" },
+    { label: "Marketing %", value: `${marketingRatio.toFixed(1)}%`, pct: Math.min(100, marketingRatio), color: "#f5a524" },
+    {
+      label: "Revenue / Customer",
+      value: data.numberOfCustomers > 0 ? formatCurrency(data.monthlyRevenue / data.numberOfCustomers) : "N/A",
+      pct: 100,
+      color: "#38bdf8",
+    },
+  ];
+
+  // Has analysis data — show real dashboard
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto space-y-4">
@@ -341,23 +286,19 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Key Metrics Row */}
+        {/* Key Metrics Row (real) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger">
           {/* Revenue */}
           <div className="relative overflow-hidden rounded-2xl border border-[#1b222c] bg-gradient-to-br from-primary/10 via-[#141a22] to-[#141a22] p-5 card-hover">
             <div className="absolute -right-8 -top-8 w-28 h-28 bg-primary/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center">
-                  <HiOutlineCurrencyDollar className="text-primary-light text-xl" />
-                </div>
-                <span className="flex items-center gap-1 text-[11px] font-semibold text-primary-light bg-primary/10 px-2 py-1 rounded-full">
-                  <HiOutlineTrendingUp /> Revenue
-                </span>
+                <div className="w-11 h-11 rounded-xl bg-primary/15 flex items-center justify-center"><HiOutlineCurrencyDollar className="text-primary-light text-xl" /></div>
+                <span className="flex items-center gap-1 text-[11px] font-semibold text-primary-light bg-primary/10 px-2 py-1 rounded-full"><HiOutlineTrendingUp /> Revenue</span>
               </div>
               <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Monthly Revenue</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-white animate-count">{formatCurrency(data.monthlyRevenue)}</p>
-              <Sparkline color="#00a76f" points={[8, 12, 9, 15, 13, 18, 22]} className="mt-3" />
+              <Sparkline color="#00a76f" points={data.monthlyRevenue > 0 ? [8, 12, 9, 15, 13, 18, 22] : [0, 0, 0, 0, 0, 0, 0]} className="mt-3" />
             </div>
           </div>
 
@@ -366,16 +307,12 @@ export default function DashboardPage() {
             <div className="absolute -right-8 -top-8 w-28 h-28 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-11 h-11 rounded-xl bg-red-500/15 flex items-center justify-center">
-                  <HiOutlineExclamationCircle className="text-red-400 text-xl" />
-                </div>
-                <span className="flex items-center gap-1 text-[11px] font-semibold text-red-400 bg-red-500/10 px-2 py-1 rounded-full">
-                  <HiOutlineTrendingDown /> Expenses
-                </span>
+                <div className="w-11 h-11 rounded-xl bg-red-500/15 flex items-center justify-center"><HiOutlineExclamationCircle className="text-red-400 text-xl" /></div>
+                <span className="flex items-center gap-1 text-[11px] font-semibold text-red-400 bg-red-500/10 px-2 py-1 rounded-full"><HiOutlineTrendingDown /> Expenses</span>
               </div>
               <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Monthly Expenses</p>
               <p className="text-2xl sm:text-3xl font-extrabold text-white animate-count">{formatCurrency(data.monthlyExpenses)}</p>
-              <Sparkline color="#f87171" points={[18, 14, 16, 12, 15, 11, 9]} className="mt-3" />
+              <Sparkline color="#f87171" points={data.monthlyExpenses > 0 ? [18, 14, 16, 12, 15, 11, 9] : [0, 0, 0, 0, 0, 0, 0]} className="mt-3" />
             </div>
           </div>
 
@@ -387,9 +324,7 @@ export default function DashboardPage() {
                 <div className={`w-11 h-11 rounded-xl ${isProfit ? "bg-primary/15" : "bg-red-500/15"} flex items-center justify-center`}>
                   {isProfit ? <HiOutlineArrowTrendingUp className="text-primary-light text-xl" /> : <HiOutlineArrowTrendingDown className="text-red-400 text-xl" />}
                 </div>
-                <span className={`text-[11px] font-bold px-2 py-1 rounded-full ${isProfit ? "bg-primary/15 text-primary-light" : "bg-red-900/30 text-red-400"}`}>
-                  {isProfit ? "PROFIT" : "LOSS"}
-                </span>
+                <span className={`text-[11px] font-bold px-2 py-1 rounded-full ${isProfit ? "bg-primary/15 text-primary-light" : "bg-red-900/30 text-red-400"}`}>{isProfit ? "PROFIT" : "LOSS"}</span>
               </div>
               <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Monthly {isProfit ? "Profit" : "Loss"}</p>
               <p className={`text-2xl sm:text-3xl font-extrabold animate-count ${isProfit ? "text-primary-light" : "text-red-400"}`}>{isProfit ? "+" : "-"}{formatCurrency(Math.abs(profit))}</p>
@@ -407,9 +342,7 @@ export default function DashboardPage() {
             <div className="absolute -right-8 -top-8 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
             <div className="relative">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-11 h-11 rounded-xl bg-sky-500/15 flex items-center justify-center">
-                  <HiOutlineUserGroup className="text-sky-400 text-xl" />
-                </div>
+                <div className="w-11 h-11 rounded-xl bg-sky-500/15 flex items-center justify-center"><HiOutlineUserGroup className="text-sky-400 text-xl" /></div>
                 <span className="text-[11px] font-semibold text-sky-400 bg-sky-500/10 px-2 py-1 rounded-full">Total</span>
               </div>
               <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Customers</p>
@@ -417,136 +350,101 @@ export default function DashboardPage() {
               {data.numberOfCustomers > 0 && data.monthlyRevenue > 0 ? (
                 <p className="text-[11px] text-slate-500 mt-3">{formatCurrency(data.monthlyRevenue / data.numberOfCustomers)} / customer</p>
               ) : (
-                <Sparkline color="#38bdf8" points={[10, 12, 11, 14, 13, 16, 15]} className="mt-3" />
+                <Sparkline color="#38bdf8" points={data.numberOfCustomers > 0 ? [10, 12, 11, 14, 13, 16, 15] : [0, 0, 0, 0, 0, 0, 0]} className="mt-3" />
               )}
             </div>
           </div>
         </div>
-        {/* ===== Rich showcase widgets ===== */}
+
+        {/* Performance Overview (real data) */}
         <div className="pt-2">
           <h2 className="text-lg font-bold text-white mb-1">Performance Overview</h2>
-          <p className="text-xs text-slate-500 mb-4">Sample analytics widgets to visualize sales, orders and trends.</p>
+          <p className="text-xs text-slate-500 mb-4">Calculated from your analyzed business figures.</p>
         </div>
 
-        {/* Revenue trend + Product Sales */}
+        {/* Income vs Expenses + Revenue Allocation */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <Card className="xl:col-span-2 p-5 sm:p-6">
-            <h3 className="text-white font-semibold mb-5">Revenue Trend</h3>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="rounded-xl bg-[#0f141b] border border-[#1b222c] p-4">
-                <div className="flex items-center gap-2 text-sm text-slate-400"><span className="w-2.5 h-2.5 rounded-full bg-primary" /> Total Income</div>
-                <p className="text-2xl font-bold text-white mt-2">{formatCurrency(data.monthlyRevenue)}</p>
-              </div>
-              <div className="rounded-xl bg-[#0f141b] border border-[#1b222c] p-4">
-                <div className="flex items-center gap-2 text-sm text-slate-400"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> Total Expenses</div>
-                <p className="text-2xl font-bold text-white mt-2">{formatCurrency(data.monthlyExpenses)}</p>
-              </div>
+            <h3 className="text-white font-semibold mb-5">Income vs Expenses</h3>
+            <div className="flex items-end justify-around gap-3 sm:gap-6 h-[230px] pt-4">
+              {bars.map((b) => {
+                const barH = (b.value / barMax) * 170;
+                return (
+                  <div key={b.label} className="flex-1 flex flex-col items-center justify-end h-full">
+                    <span className="text-xs font-bold text-white mb-2">{formatCurrency(b.value)}</span>
+                    <div className="w-full max-w-[64px] rounded-t-lg transition-all duration-700" style={{ height: `${Math.max(barH, 3)}px`, background: b.color }} />
+                    <span className="text-[11px] text-slate-400 mt-3">{b.label}</span>
+                  </div>
+                );
+              })}
             </div>
-            <AreaChart />
           </Card>
 
           <Card className="p-5 sm:p-6">
-            <h3 className="text-white font-semibold mb-2">Product Sales</h3>
-            <div className="flex justify-center my-4">
-              <Donut segments={productSales.map((p) => ({ value: p.value, color: p.color }))} />
+            <h3 className="text-white font-semibold mb-2">Revenue Allocation</h3>
+            <div className="relative flex justify-center my-4">
+              <Donut segments={allocation.length ? allocation : [{ value: 1, color: "#1b222c" }]} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-[10px] text-slate-500 uppercase">Revenue</span>
+                <span className="text-lg font-bold text-white">{formatCurrency(data.monthlyRevenue)}</span>
+              </div>
             </div>
-            <div className="space-y-3">
-              {productSales.map((p) => (
-                <div key={p.name} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 text-slate-300"><span className="w-2.5 h-2.5 rounded-full" style={{ background: p.color }} />{p.name}</span>
-                  <span className="text-slate-400"><span className="text-white font-medium">{p.amount}</span> {p.value}%</span>
-                </div>
-              ))}
-            </div>
+            {allocation.length ? (
+              <div className="space-y-3">
+                {allocation.map((a) => (
+                  <div key={a.name} className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2 text-slate-300"><span className="w-2.5 h-2.5 rounded-full" style={{ background: a.color }} />{a.name}</span>
+                    <span className="text-white font-medium">{formatCurrency(a.value)}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-xs text-slate-500 py-2">No financial data to allocate.</p>
+            )}
           </Card>
         </div>
 
-        {/* Orders + Revenue by Location */}
+        {/* Key Ratios + Revenue by Location */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <Card className="xl:col-span-2 p-5 sm:p-6">
-            <h3 className="text-white font-semibold mb-4">Recent Orders</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-slate-500 border-b border-[#1b222c]">
-                    <th className="py-3 font-medium">Order ID</th>
-                    <th className="py-3 font-medium">Amount</th>
-                    <th className="py-3 font-medium hidden sm:table-cell">Shipping</th>
-                    <th className="py-3 font-medium hidden md:table-cell">Delivery Date</th>
-                    <th className="py-3 font-medium">Status</th>
-                    <th className="py-3 font-medium text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((o, i) => (
-                    <tr key={i} className="border-b border-[#1b222c]/60 hover:bg-[#0f141b] transition-colors">
-                      <td className="py-3 text-slate-200">{o.id}</td>
-                      <td className="py-3 text-slate-300">{o.amount}</td>
-                      <td className="py-3 text-slate-400 hidden sm:table-cell">{o.method}</td>
-                      <td className="py-3 text-slate-400 hidden md:table-cell">{o.date}</td>
-                      <td className="py-3"><span className={`px-2.5 py-1 rounded-md text-xs font-medium ${statusStyle[o.status]}`}>{o.status}</span></td>
-                      <td className="py-3 text-right"><button className="px-3 py-1 rounded-md border border-[#232b36] text-xs text-slate-300 hover:border-primary hover:text-primary-light transition-all">View</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <h3 className="text-white font-semibold mb-5">Key Financial Ratios</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+              {ratios.map((r) => (
+                <div key={r.label}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400">{r.label}</span>
+                    <span className="text-sm font-bold text-white">{r.value}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#0b0e13] overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${r.pct}%`, background: r.color }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 pt-4 border-t border-[#232b36] grid grid-cols-3 gap-4 text-center">
+              <div><p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Industry</p><p className="text-xs font-bold text-white">{data.industry || "N/A"}</p></div>
+              <div><p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Business Age</p><p className="text-xs font-bold text-white">{data.businessAge || "N/A"}</p></div>
+              <div><p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Source</p><p className="text-xs font-bold text-white">{data.hasPdf ? "PDF + Form" : "Manual"}</p></div>
             </div>
           </Card>
 
           <Card className="p-5 sm:p-6">
             <h3 className="text-white font-semibold mb-4">Revenue by Location</h3>
-            <div className="h-32 rounded-xl mb-5 opacity-70" style={{ backgroundImage: "radial-gradient(circle, #2a3a44 1.4px, transparent 1.6px)", backgroundSize: "12px 12px", maskImage: "radial-gradient(120% 90% at 50% 40%, #000 40%, transparent 75%)", WebkitMaskImage: "radial-gradient(120% 90% at 50% 40%, #000 40%, transparent 75%)" }} />
-            <div className="space-y-4">
-              {locations.map((l) => (
-                <div key={l.country}>
-                  <div className="flex items-center justify-between text-sm mb-1.5"><span className="text-slate-300">{l.country}</span><span className="text-white font-medium">{l.amount}</span></div>
-                  <div className="h-1.5 rounded-full bg-[#1b222c] overflow-hidden"><div className="h-full rounded-full transition-all" style={{ width: `${l.pct}%`, background: l.color }} /></div>
+            <div className="h-28 rounded-xl mb-5 opacity-70" style={{ backgroundImage: "radial-gradient(circle, #2a3a44 1.4px, transparent 1.6px)", backgroundSize: "12px 12px", maskImage: "radial-gradient(120% 90% at 50% 40%, #000 40%, transparent 75%)", WebkitMaskImage: "radial-gradient(120% 90% at 50% 40%, #000 40%, transparent 75%)" }} />
+            {data.country ? (
+              <div>
+                <div className="flex items-center justify-between text-sm mb-1.5">
+                  <span className="flex items-center gap-2 text-slate-300"><HiOutlineGlobe className="text-primary-light" /> {data.country}</span>
+                  <span className="text-white font-medium">{formatCurrency(data.monthlyRevenue)}</span>
                 </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        {/* Sales by Gender + Top Selling Products */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          <Card className="p-5 sm:p-6">
-            <h3 className="text-white font-semibold mb-2">Sales by Gender</h3>
-            <div className="flex justify-center my-6">
-              <Donut segments={[{ value: 45, color: "#00a76f" }, { value: 35, color: "#f5a524" }, { value: 20, color: "#f87171" }]} size={190} thickness={16} />
-            </div>
-            <div className="flex items-center justify-center gap-5 text-sm">
-              <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-primary" />Mens</span>
-              <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" />Womens</span>
-              <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-red-400" />Kids</span>
-            </div>
-          </Card>
-
-          <Card className="xl:col-span-2 p-5 sm:p-6">
-            <h3 className="text-white font-semibold mb-4">Top Selling Products</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-slate-500 border-b border-[#1b222c]">
-                    <th className="py-3 font-medium">Product</th>
-                    <th className="py-3 font-medium">Sale</th>
-                    <th className="py-3 font-medium hidden sm:table-cell">Revenue</th>
-                    <th className="py-3 font-medium hidden md:table-cell">Rating</th>
-                    <th className="py-3 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topProducts.map((p, i) => (
-                    <tr key={i} className="border-b border-[#1b222c]/60 hover:bg-[#0f141b] transition-colors">
-                      <td className="py-3"><div className="flex items-center gap-3"><span className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/30 to-[#1b222c]" /><span className="text-slate-200">{p.name}</span></div></td>
-                      <td className="py-3 text-slate-300">{p.sale}</td>
-                      <td className="py-3 text-slate-400 hidden sm:table-cell">{p.revenue}</td>
-                      <td className="py-3 text-amber-400 hidden md:table-cell">★ {p.rating}</td>
-                      <td className="py-3"><span className={`px-2.5 py-1 rounded-md text-xs font-medium ${stockStyle[p.status]}`}>{p.status}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                <div className="h-1.5 rounded-full bg-[#1b222c] overflow-hidden">
+                  <div className="h-full rounded-full bg-primary" style={{ width: data.monthlyRevenue > 0 ? "100%" : "0%" }} />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-4">Based on your single analyzed location. Add more business locations to compare regions.</p>
+              </div>
+            ) : (
+              <p className="text-center text-xs text-slate-500 py-2">No location data available.</p>
+            )}
           </Card>
         </div>
 
@@ -574,9 +472,9 @@ export default function DashboardPage() {
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-3"><HiOutlineBuildingOffice2 className="text-amber-400 text-lg" /></div>
             <h3 className="text-sm font-bold text-white mb-3">Business Details</h3>
             <div className="space-y-2">
-              <div className="flex items-center justify-between"><span className="text-[10px] text-slate-500">Industry</span><span className="text-[10px] font-semibold text-slate-300">{data.industry}</span></div>
-              <div className="flex items-center justify-between"><span className="text-[10px] text-slate-500">Location</span><span className="text-[10px] font-semibold text-slate-300">{data.country}</span></div>
-              <div className="flex items-center justify-between"><span className="text-[10px] text-slate-500">Age</span><span className="text-[10px] font-semibold text-slate-300">{data.businessAge}</span></div>
+              <div className="flex items-center justify-between"><span className="text-[10px] text-slate-500">Industry</span><span className="text-[10px] font-semibold text-slate-300">{data.industry || "N/A"}</span></div>
+              <div className="flex items-center justify-between"><span className="text-[10px] text-slate-500">Location</span><span className="text-[10px] font-semibold text-slate-300">{data.country || "N/A"}</span></div>
+              <div className="flex items-center justify-between"><span className="text-[10px] text-slate-500">Age</span><span className="text-[10px] font-semibold text-slate-300">{data.businessAge || "N/A"}</span></div>
               <div className="flex items-center justify-between"><span className="text-[10px] text-slate-500">Source</span><span className="text-[10px] font-semibold text-slate-300">{data.hasPdf ? "PDF + Form" : "Manual Entry"}</span></div>
             </div>
           </div>
