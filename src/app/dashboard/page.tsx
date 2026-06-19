@@ -14,7 +14,6 @@ import {
   HiOutlineLightningBolt,
   HiOutlineCurrencyDollar,
   HiOutlineUserGroup,
-  HiOutlineShieldCheck,
   HiOutlineExclamationCircle,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
@@ -212,9 +211,6 @@ export default function DashboardPage() {
   const profit = data ? data.monthlyRevenue - data.monthlyExpenses : 0;
   const profitMargin = data && data.monthlyRevenue > 0 ? (profit / data.monthlyRevenue) * 100 : 0;
   const isProfit = profit >= 0;
-  const healthScore = data ? Math.min(100, Math.max(0, 50 + profitMargin)) : 0;
-  const healthLabel = healthScore >= 75 ? "Excellent" : healthScore >= 50 ? "Good" : healthScore >= 25 ? "Needs Work" : "Critical";
-  const healthColor = healthScore >= 75 ? "text-primary-light" : healthScore >= 50 ? "text-amber-400" : healthScore >= 25 ? "text-orange-400" : "text-red-400";
 
   const formatCurrency = (n: number) => {
     if (n >= 1000000) return `$${(n / 1000000).toFixed(1)}M`;
@@ -426,85 +422,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* Revenue vs Expenses Breakdown + Health Score */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-fade-in-up">
-          <div className="lg:col-span-2 bg-[#141a22] rounded-2xl border border-[#1b222c] p-4 sm:p-6">
-            <h3 className="text-sm font-bold text-white mb-5">Revenue vs Expenses Breakdown</h3>
-            <div className="space-y-5">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-slate-400">Revenue</span>
-                  <span className="text-sm font-bold text-primary-light">{formatCurrency(data.monthlyRevenue)}</span>
-                </div>
-                <div className="h-4 bg-[#0b0e13] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-primary to-primary-light rounded-full transition-all duration-1000" style={{ width: "100%" }} /></div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-slate-400">Expenses</span>
-                  <span className="text-sm font-bold text-red-400">{formatCurrency(data.monthlyExpenses)}</span>
-                </div>
-                <div className="h-4 bg-[#0b0e13] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-red-500 to-rose-400 rounded-full transition-all duration-1000" style={{ width: data.monthlyRevenue > 0 ? `${(data.monthlyExpenses / data.monthlyRevenue) * 100}%` : "100%" }} /></div>
-              </div>
-              {data.marketingBudget > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-slate-400">Marketing Budget</span>
-                    <span className="text-sm font-bold text-amber-400">{formatCurrency(data.marketingBudget)}</span>
-                  </div>
-                  <div className="h-4 bg-[#0b0e13] rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-1000" style={{ width: data.monthlyRevenue > 0 ? `${(data.marketingBudget / data.monthlyRevenue) * 100}%` : "50%" }} /></div>
-                </div>
-              )}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-slate-400">{isProfit ? "Net Profit" : "Net Loss"}</span>
-                  <span className={`text-sm font-bold ${isProfit ? "text-primary-light" : "text-red-400"}`}>{isProfit ? "+" : "-"}{formatCurrency(Math.abs(profit))}</span>
-                </div>
-                <div className="h-4 bg-[#0b0e13] rounded-full overflow-hidden"><div className={`h-full bg-gradient-to-r ${isProfit ? "from-primary to-primary-light" : "from-red-600 to-red-400"} rounded-full transition-all duration-1000`} style={{ width: data.monthlyRevenue > 0 ? `${Math.min(100, (Math.abs(profit) / data.monthlyRevenue) * 100)}%` : "0%" }} /></div>
-              </div>
-            </div>
-            <div className="mt-6 pt-4 border-t border-[#232b36] grid grid-cols-3 gap-4 text-center">
-              <div><p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Industry</p><p className="text-xs font-bold text-white">{data.industry}</p></div>
-              <div><p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Business Age</p><p className="text-xs font-bold text-white">{data.businessAge}</p></div>
-              <div><p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Country</p><p className="text-xs font-bold text-white">{data.country}</p></div>
-            </div>
-          </div>
-
-          <div className="bg-[#141a22] rounded-2xl border border-[#1b222c] p-4 sm:p-6 flex flex-col">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center"><HiOutlineShieldCheck className="text-primary-light text-lg" /></div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Health Score</span>
-            </div>
-            <div className="flex-1 flex flex-col items-center justify-center py-4">
-              <div className="relative w-28 h-28 sm:w-32 sm:h-32">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="#232b36" strokeWidth="8" />
-                  <circle cx="50" cy="50" r="42" fill="none" stroke="url(#healthGradient)" strokeWidth="8" strokeLinecap="round" strokeDasharray={`${healthScore * 2.64} 264`} />
-                  <defs>
-                    <linearGradient id="healthGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor={healthScore >= 50 ? "#00a76f" : "#EF4444"} />
-                      <stop offset="100%" stopColor={healthScore >= 50 ? "#1fc98a" : "#F87171"} />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-2xl sm:text-3xl font-extrabold text-white">{Math.round(healthScore)}</span>
-                  <span className="text-[9px] text-slate-500 uppercase tracking-wider">/ 100</span>
-                </div>
-              </div>
-              <span className={`mt-3 text-sm font-bold ${healthColor}`}>{healthLabel}</span>
-              <p className="text-[10px] text-slate-500 text-center mt-1">Based on profit margin</p>
-            </div>
-            <div className="space-y-3 pt-4 border-t border-[#232b36]">
-              <div className="flex items-center justify-between"><span className="text-xs text-slate-400">Profit Margin</span><span className={`text-xs font-bold ${isProfit ? "text-primary-light" : "text-red-400"}`}>{profitMargin.toFixed(1)}%</span></div>
-              <div className="flex items-center justify-between"><span className="text-xs text-slate-400">Expense Ratio</span><span className="text-xs font-bold text-white">{data.monthlyRevenue > 0 ? ((data.monthlyExpenses / data.monthlyRevenue) * 100).toFixed(1) : 0}%</span></div>
-              {data.marketingBudget > 0 && (
-                <div className="flex items-center justify-between"><span className="text-xs text-slate-400">Marketing %</span><span className="text-xs font-bold text-amber-400">{data.monthlyRevenue > 0 ? ((data.marketingBudget / data.monthlyRevenue) * 100).toFixed(1) : 0}%</span></div>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* ===== Rich showcase widgets ===== */}
         <div className="pt-2">
           <h2 className="text-lg font-bold text-white mb-1">Performance Overview</h2>
