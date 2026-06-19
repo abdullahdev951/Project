@@ -7,6 +7,7 @@ interface User {
   name: string;
   email: string;
   plan: "free" | "pro" | "business";
+  role: "user" | "admin";
 }
 
 interface AuthContextType {

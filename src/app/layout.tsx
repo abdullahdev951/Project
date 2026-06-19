@@ -11,9 +11,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "AI Assist Pro - Your All-in-One AI Assistant Hub",
+  title: "AI Assist Pro — AI Business Assistant & Analytics",
   description:
-    "One platform for all your needs - Developer Tools, AI Tools, Travel Planner, Fitness, Cooking, Game Assistance & more. Anything You Need, Just Ask!",
+    "Your AI-powered business assistant. Analyze documents, track revenue and sales, generate reports, and get instant insights — all in one beautifully simple dashboard.",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${poppins.variable} antialiased bg-[#0F172A] text-slate-200`}>
+      <body className={`${poppins.variable} antialiased bg-[#0b0e13] text-slate-200`}>
         <AuthProvider>
           <ThemeProvider>{children}</ThemeProvider>
         </AuthProvider>

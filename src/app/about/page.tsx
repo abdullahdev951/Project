@@ -50,7 +50,7 @@ export default function AboutPage() {
         {/* Mission + Stats Row */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
           {/* Mission Card */}
-          <div className="lg:col-span-2 bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-6 flex flex-col justify-center">
+          <div className="lg:col-span-2 bg-white dark:bg-[#141a22] rounded-2xl border border-edge dark:border-[#232b36] p-6 flex flex-col justify-center">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
               <HiOutlineGlobeAlt className="text-white text-xl" />
             </div>
@@ -66,7 +66,7 @@ export default function AboutPage() {
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="bg-white dark:bg-[#1E293B] border border-edge dark:border-[#334155] rounded-2xl p-6 text-center"
+                className="bg-white dark:bg-[#141a22] border border-edge dark:border-[#232b36] rounded-2xl p-6 text-center"
               >
                 <div className="text-3xl font-extrabold gradient-text mb-1">
                   {stat.value}
@@ -80,7 +80,7 @@ export default function AboutPage() {
         </div>
 
         {/* The Engine of Progress */}
-        <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-6 md:p-8 mb-8">
+        <div className="bg-white dark:bg-[#141a22] rounded-2xl border border-edge dark:border-[#232b36] p-6 md:p-8 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-400 flex items-center justify-center shadow-sm">
               <HiOutlineLightningBolt className="text-white text-lg" />
@@ -93,7 +93,7 @@ export default function AboutPage() {
 
           <div className="grid md:grid-cols-2 gap-3">
             {features.map((feature) => (
-              <div key={feature} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-[#0F172A] transition-all">
+              <div key={feature} className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-[#0b0e13] transition-all">
                 <HiOutlineCheckCircle className="text-green-500 text-lg flex-shrink-0" />
                 <span className="text-sm text-muted dark:text-slate-300">{feature}</span>
               </div>
@@ -103,7 +103,7 @@ export default function AboutPage() {
 
         {/* Architected for the Infinite */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-6">
+          <div className="bg-white dark:bg-[#141a22] rounded-2xl border border-edge dark:border-[#232b36] p-6">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
               <HiOutlineCpuChip className="text-primary text-xl" />
             </div>
@@ -112,7 +112,7 @@ export default function AboutPage() {
               Built from the ground up with AI at the core, leveraging Google Gemini for advanced business intelligence.
             </p>
           </div>
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-6">
+          <div className="bg-white dark:bg-[#141a22] rounded-2xl border border-edge dark:border-[#232b36] p-6">
             <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4">
               <HiOutlineShieldCheck className="text-green-500 text-xl" />
             </div>
@@ -121,7 +121,7 @@ export default function AboutPage() {
               Privacy-first design with local data storage, encrypted connections, and zero data sharing with third parties.
             </p>
           </div>
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-6">
+          <div className="bg-white dark:bg-[#141a22] rounded-2xl border border-edge dark:border-[#232b36] p-6">
             <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-4">
               <HiOutlineSquares2X2 className="text-amber-500 text-xl" />
             </div>

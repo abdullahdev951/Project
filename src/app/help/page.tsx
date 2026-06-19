@@ -10,6 +10,7 @@ import {
   HiOutlineShieldCheck,
   HiOutlineMail,
   HiOutlineChevronDown,
+  HiOutlineSearch,
 } from "react-icons/hi";
 import { HiOutlineChatBubbleLeftRight, HiOutlineArrowPath, HiOutlineBookOpen, HiOutlineCodeBracket } from "react-icons/hi2";
 
@@ -42,34 +43,55 @@ const faqs = [
 
 export default function HelpPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+
+  const filteredFaqs = faqs.filter(
+    (faq) =>
+      faq.q.toLowerCase().includes(search.toLowerCase()) ||
+      faq.a.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto">
-        {/* Page Header */}
-        <div className="text-center mb-8 sm:mb-10 animate-fade-in-up">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
-            <HiOutlineQuestionMarkCircle className="text-white text-2xl" />
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-5">
+        {/* Hero with search */}
+        <div className="relative overflow-hidden rounded-2xl border border-[#1b222c] bg-[#141a22] p-8 sm:p-10 text-center animate-fade-in-up">
+          <div className="absolute inset-0 bg-glow pointer-events-none" />
+          <div className="absolute inset-0 bg-grid opacity-40 pointer-events-none" />
+          <div className="relative">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20 animate-float">
+              <HiOutlineQuestionMarkCircle className="text-white text-2xl" />
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-2">
+              How can we <span className="gradient-text">help you</span> today?
+            </h1>
+            <p className="text-sm text-slate-400 max-w-lg mx-auto mb-6">
+              Everything you need to get started and make the most of AI Assist Pro
+            </p>
+            <div className="relative max-w-xl mx-auto">
+              <HiOutlineSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search for answers..."
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-[#0f141b] border border-[#232b36] text-sm text-slate-200 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 placeholder-slate-500 transition-all"
+              />
+            </div>
           </div>
-          <h1 className="text-3xl font-extrabold text-foreground dark:text-white mb-2">
-            How can we <span className="gradient-text">help you</span> today?
-          </h1>
-          <p className="text-sm text-muted dark:text-slate-400 max-w-lg mx-auto">
-            Everything you need to get started and make the most of AI Assist Pro
-          </p>
         </div>
 
         {/* Feature Cards - Top Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
           {/* Getting Started */}
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-6">
+          <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-6 card-hover">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center shadow-sm">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
                 <HiOutlineLightningBolt className="text-white text-lg" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-foreground dark:text-white">Getting Started</h3>
-                <p className="text-xs text-muted dark:text-slate-400">Quick setup guide</p>
+                <h3 className="text-base font-bold text-white">Getting Started</h3>
+                <p className="text-xs text-slate-400">Quick setup guide</p>
               </div>
             </div>
             <div className="space-y-3">
@@ -80,117 +102,134 @@ export default function HelpPage() {
                 { step: "04", text: "Chat with AI Assistant for more advice" },
               ].map((item) => (
                 <div key={item.step} className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-primary dark:text-primary-light bg-primary/10 px-2 py-1 rounded-lg">{item.step}</span>
-                  <span className="text-xs text-muted dark:text-slate-400">{item.text}</span>
+                  <span className="text-[10px] font-bold text-primary-light bg-primary/10 px-2 py-1 rounded-lg">{item.step}</span>
+                  <span className="text-xs text-slate-400">{item.text}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Data Connection */}
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-6">
+          <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-6 card-hover">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-green-500 to-green-400 flex items-center justify-center shadow-sm">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
                 <HiOutlineArrowPath className="text-white text-lg" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-foreground dark:text-white">Data Connection</h3>
-                <p className="text-xs text-muted dark:text-slate-400">How to upload your data</p>
+                <h3 className="text-base font-bold text-white">Data Connection</h3>
+                <p className="text-xs text-slate-400">How to upload your data</p>
               </div>
             </div>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <HiOutlineUpload className="text-primary mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-muted dark:text-slate-400">Upload PDF files with your financial reports, sales data, or business documents</p>
+                <HiOutlineUpload className="text-primary-light mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-slate-400">Upload PDF files with your financial reports, sales data, or business documents</p>
               </div>
               <div className="flex items-start gap-3">
-                <HiOutlineChartBar className="text-primary mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-muted dark:text-slate-400">Fill in the manual form with business name, industry, revenue, and expenses</p>
+                <HiOutlineChartBar className="text-primary-light mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-slate-400">Fill in the manual form with business name, industry, revenue, and expenses</p>
               </div>
               <div className="flex items-start gap-3">
-                <HiOutlineLightningBolt className="text-amber-500 mt-0.5 flex-shrink-0" />
-                <p className="text-xs text-muted dark:text-slate-400">Both methods work - AI extracts and processes the data automatically</p>
+                <HiOutlineLightningBolt className="text-amber-400 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-slate-400">Both methods work - AI extracts and processes the data automatically</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Secondary Cards Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 animate-fade-in-up stagger" style={{ animationDelay: "0.2s" }}>
+          <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-5 card-hover">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-              <HiOutlineBookOpen className="text-primary text-lg" />
+              <HiOutlineBookOpen className="text-primary-light text-lg" />
             </div>
-            <h3 className="text-sm font-bold text-foreground dark:text-white mb-1">Account Management</h3>
-            <p className="text-xs text-muted dark:text-slate-400 leading-relaxed">Manage your profile, preferences, and notification settings from the Settings page.</p>
+            <h3 className="text-sm font-bold text-white mb-1">Account Management</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">Manage your profile, preferences, and notification settings from the Settings page.</p>
           </div>
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-5">
-            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center mb-3">
-              <HiOutlineShieldCheck className="text-green-500 text-lg" />
+          <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-5 card-hover">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+              <HiOutlineShieldCheck className="text-primary-light text-lg" />
             </div>
-            <h3 className="text-sm font-bold text-foreground dark:text-white mb-1">Privacy & Security</h3>
-            <p className="text-xs text-muted dark:text-slate-400 leading-relaxed">Your data is secure and never shared. Reports are stored locally in your browser only.</p>
+            <h3 className="text-sm font-bold text-white mb-1">Privacy &amp; Security</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">Your data is secure and never shared. Reports are stored locally in your browser only.</p>
           </div>
-          <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-5">
+          <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-5 card-hover">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center mb-3">
-              <HiOutlineCodeBracket className="text-amber-500 text-lg" />
+              <HiOutlineCodeBracket className="text-amber-400 text-lg" />
             </div>
-            <h3 className="text-sm font-bold text-foreground dark:text-white mb-1">API Reference</h3>
-            <p className="text-xs text-muted dark:text-slate-400 leading-relaxed">Powered by Google Gemini AI for intelligent business analysis and chat assistance.</p>
+            <h3 className="text-sm font-bold text-white mb-1">API Reference</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">Powered by Google Gemini AI for intelligent business analysis and chat assistance.</p>
           </div>
         </div>
 
         {/* FAQs with Accordion */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-foreground dark:text-white mb-6 text-center">
+        <div>
+          <h2 className="text-xl font-bold text-white mb-6 text-center">
             Frequently Asked Questions
           </h2>
           <div className="space-y-3">
-            {faqs.map((faq, index) => (
-              <div
-                key={faq.q}
-                className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] overflow-hidden"
-              >
-                <button
-                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full flex items-center justify-between p-5 text-left"
-                >
-                  <h3 className="text-sm font-bold text-foreground dark:text-white pr-4">{faq.q}</h3>
-                  <HiOutlineChevronDown
-                    className={`text-muted dark:text-slate-400 flex-shrink-0 transition-transform duration-200 ${
-                      openFaq === index ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {openFaq === index && (
-                  <div className="px-5 pb-5 -mt-1">
-                    <p className="text-xs text-muted dark:text-slate-400 leading-relaxed">{faq.a}</p>
-                  </div>
-                )}
+            {filteredFaqs.length === 0 ? (
+              <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-8 text-center">
+                <p className="text-sm text-slate-400">No results found for &ldquo;{search}&rdquo;.</p>
               </div>
-            ))}
+            ) : (
+              filteredFaqs.map((faq) => {
+                const index = faqs.indexOf(faq);
+                const isOpen = openFaq === index;
+                return (
+                  <div
+                    key={faq.q}
+                    className={`rounded-2xl bg-[#141a22] border overflow-hidden transition-colors ${
+                      isOpen ? "border-primary/40" : "border-[#1b222c]"
+                    }`}
+                  >
+                    <button
+                      onClick={() => setOpenFaq(isOpen ? null : index)}
+                      className="w-full flex items-center justify-between p-5 text-left group"
+                    >
+                      <h3 className="text-sm font-bold text-white pr-4 group-hover:text-primary-light transition-colors">{faq.q}</h3>
+                      <span
+                        className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
+                          isOpen ? "bg-primary/20 text-primary-light rotate-180" : "bg-[#1b222c] text-slate-400"
+                        }`}
+                      >
+                        <HiOutlineChevronDown />
+                      </span>
+                    </button>
+                    {isOpen && (
+                      <div className="px-5 pb-5 -mt-1 animate-slide-down">
+                        <p className="text-xs text-slate-400 leading-relaxed">{faq.a}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
-        {/* Still Need Help */}
-        <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-8 text-center">
-          <h2 className="text-xl font-bold text-foreground dark:text-white mb-2">Still need help?</h2>
-          <p className="text-sm text-muted dark:text-slate-400 mb-6 max-w-md mx-auto">
-            Our team is here to assist you with any questions or issues
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-primary/10 text-primary dark:text-primary-light">
-              <HiOutlineChatBubbleLeftRight className="text-lg" />
-              <div className="text-left">
-                <p className="text-xs font-bold">Live Chat</p>
-                <p className="text-[10px] opacity-70">Available 24/7</p>
+        {/* Still Need Help - Contact CTA */}
+        <div className="relative overflow-hidden rounded-2xl border border-[#1b222c] bg-[#141a22] p-8 text-center">
+          <div className="absolute inset-0 bg-glow pointer-events-none" />
+          <div className="relative">
+            <h2 className="text-xl font-bold text-white mb-2">Still need help?</h2>
+            <p className="text-sm text-slate-400 mb-6 max-w-md mx-auto">
+              Our team is here to assist you with any questions or issues
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary-light card-hover">
+                <HiOutlineChatBubbleLeftRight className="text-lg" />
+                <div className="text-left">
+                  <p className="text-xs font-bold">Live Chat</p>
+                  <p className="text-[10px] opacity-70">Available 24/7</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-amber-500/10 text-amber-500">
-              <HiOutlineMail className="text-lg" />
-              <div className="text-left">
-                <p className="text-xs font-bold">Email Support</p>
-                <p className="text-[10px] opacity-70">support@aiassistpro.com</p>
+              <div className="flex items-center gap-3 px-6 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 card-hover">
+                <HiOutlineMail className="text-lg" />
+                <div className="text-left">
+                  <p className="text-xs font-bold">Email Support</p>
+                  <p className="text-[10px] opacity-70">support@aiassistpro.com</p>
+                </div>
               </div>
             </div>
           </div>

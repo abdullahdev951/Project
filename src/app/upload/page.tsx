@@ -12,7 +12,7 @@ import {
   HiOutlineCloudUpload,
   HiOutlineLightningBolt,
 } from "react-icons/hi";
-import { HiOutlineBriefcase, HiOutlineArrowPath } from "react-icons/hi2";
+import { HiOutlineBriefcase } from "react-icons/hi2";
 
 interface FormData {
   businessName: string;
@@ -198,74 +198,97 @@ Country: ${form.country || "Not specified"}
     }
   };
 
-  const inputClass = "w-full px-4 py-3 rounded-xl bg-white dark:bg-[#0F172A] border border-edge dark:border-[#334155] text-sm text-foreground dark:text-slate-300 outline-none focus:border-primary dark:focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all";
-  const labelClass = "block text-xs font-semibold text-foreground dark:text-slate-300 mb-1.5";
+  const inputClass = "w-full px-4 py-3 rounded-xl bg-[#0f141b] border border-[#232b36] text-sm text-slate-200 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 placeholder-slate-500 transition-all";
+  const labelClass = "block text-xs font-semibold text-slate-300 mb-1.5";
+
+  const supportedTypes = ["PDF", "Financial Reports", "Sales Data", "Invoices"];
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-5">
         {/* Page Header */}
-        <div className="mb-6 animate-fade-in-up">
+        <div className="animate-fade-in-up">
           <p className="text-xs font-bold text-primary-light uppercase tracking-widest mb-2">Data Pipeline</p>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Upload & Analyze</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Upload &amp; Analyze</h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-2">
             Drop your business data or fill in the form to generate AI-powered insights
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
           {/* Left - Upload Area */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-5">
             {/* Drag & Drop Zone */}
             <div
-              className={`bg-white dark:bg-[#1E293B] rounded-2xl border-2 border-dashed ${
-                isDragging ? "border-primary bg-primary/5 dark:bg-primary/5" : "border-edge dark:border-[#334155]"
-              } p-8 text-center transition-all`}
+              className={`group relative overflow-hidden rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-300 ${
+                isDragging
+                  ? "border-primary bg-primary/10 scale-[1.01]"
+                  : "border-[#232b36] bg-[#141a22] hover:border-primary/50 hover:bg-[#0f141b]"
+              }`}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
             >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <HiOutlineCloudUpload className="text-primary dark:text-primary-light text-3xl" />
+              <div className="absolute inset-0 bg-glow opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative">
+                <div
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all ${
+                    isDragging ? "bg-primary/20 animate-float" : "bg-primary/10"
+                  }`}
+                >
+                  <HiOutlineCloudUpload className="text-primary-light text-3xl" />
+                </div>
+                <h3 className="text-lg font-bold text-white mb-2">
+                  {isDragging ? "Release to upload" : "Drop your data here"}
+                </h3>
+                <p className="text-xs text-slate-400 mb-4">
+                  Drag &amp; drop your PDF files, or click to browse
+                </p>
+                <label className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary-light text-white text-xs font-semibold cursor-pointer hover:shadow-lg hover:shadow-primary/25 transition-all">
+                  <HiOutlineCloudUpload className="text-sm" />
+                  Browse Files
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf"
+                    onChange={handlePdfUpload}
+                    className="hidden"
+                  />
+                </label>
+                <p className="text-[10px] text-slate-500 mt-3">Supports PDF up to 10MB</p>
               </div>
-              <h3 className="text-lg font-bold text-foreground dark:text-white mb-2">Drop your data here</h3>
-              <p className="text-xs text-muted dark:text-slate-400 mb-4">
-                Drag & drop your PDF files, or click to browse
-              </p>
-              <label className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-semibold cursor-pointer hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
-                <HiOutlineCloudUpload className="text-sm" />
-                Browse Files
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf"
-                  onChange={handlePdfUpload}
-                  className="hidden"
-                />
-              </label>
-              <p className="text-[10px] text-muted dark:text-slate-500 mt-3">
-                Supports PDF up to 10MB
-              </p>
+            </div>
+
+            {/* Supported type chips */}
+            <div className="flex flex-wrap gap-2">
+              {supportedTypes.map((t) => (
+                <span
+                  key={t}
+                  className="px-3 py-1.5 rounded-lg bg-[#0f141b] border border-[#1b222c] text-[11px] font-medium text-slate-400"
+                >
+                  {t}
+                </span>
+              ))}
             </div>
 
             {/* Uploaded File */}
             {pdfFile && (
-              <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-4">
-                <p className="text-xs font-semibold text-muted dark:text-slate-400 uppercase tracking-wider mb-3">Uploaded File</p>
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 dark:bg-primary/5 border border-primary/20">
+              <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-4 animate-scale-in">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Uploaded File</p>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center flex-shrink-0">
                     <HiOutlineDocumentText className="text-white text-lg" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground dark:text-slate-300 truncate">{pdfFile.name}</p>
-                    <p className="text-[10px] text-muted dark:text-slate-500">
+                    <p className="text-sm font-medium text-slate-200 truncate">{pdfFile.name}</p>
+                    <p className="text-[10px] text-slate-500">
                       {pdfLoading ? "Extracting text..." : `${(pdfFile.size / 1024).toFixed(1)} KB`}
                     </p>
                   </div>
                   {pdfLoading ? (
                     <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin flex-shrink-0" />
                   ) : (
-                    <button type="button" onClick={removePdf} className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 text-muted hover:text-red-500 transition-all flex-shrink-0">
+                    <button type="button" onClick={removePdf} className="p-1.5 rounded-lg hover:bg-red-900/20 text-slate-400 hover:text-red-400 transition-all flex-shrink-0">
                       <HiOutlineX className="text-sm" />
                     </button>
                   )}
@@ -274,23 +297,23 @@ Country: ${form.country || "Not specified"}
             )}
 
             {/* Quick Stats */}
-            <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-5">
+            <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-5">
               <div className="flex items-center gap-2 mb-4">
-                <HiOutlineLightningBolt className="text-amber-500" />
-                <span className="text-xs font-bold text-muted dark:text-slate-400 uppercase tracking-wider">Processing Info</span>
+                <HiOutlineLightningBolt className="text-amber-400" />
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Processing Info</span>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted dark:text-slate-400">AI Model</span>
-                  <span className="text-xs font-semibold text-foreground dark:text-white">Gemini 2.5 Flash</span>
+                  <span className="text-xs text-slate-400">AI Model</span>
+                  <span className="text-xs font-semibold text-white">Gemini 2.5 Flash</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted dark:text-slate-400">Avg. Processing</span>
-                  <span className="text-xs font-semibold text-foreground dark:text-white">~15 seconds</span>
+                  <span className="text-xs text-slate-400">Avg. Processing</span>
+                  <span className="text-xs font-semibold text-white">~15 seconds</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted dark:text-slate-400">Output</span>
-                  <span className="text-xs font-semibold text-foreground dark:text-white">Full Report</span>
+                  <span className="text-xs text-slate-400">Output</span>
+                  <span className="text-xs font-semibold text-white">Full Report</span>
                 </div>
               </div>
             </div>
@@ -298,14 +321,14 @@ Country: ${form.country || "Not specified"}
 
           {/* Right - Business Form */}
           <div className="lg:col-span-3">
-            <div className="bg-white dark:bg-[#1E293B] rounded-2xl border border-edge dark:border-[#334155] p-6">
+            <div className="rounded-2xl bg-[#141a22] border border-[#1b222c] p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
                   <HiOutlineBriefcase className="text-white text-lg" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-foreground dark:text-white">Business Details</h2>
-                  <p className="text-xs text-muted dark:text-slate-400">Or enter your data manually</p>
+                  <h2 className="text-lg font-bold text-white">Business Details</h2>
+                  <p className="text-xs text-slate-400">Or enter your data manually</p>
                 </div>
               </div>
 
@@ -358,7 +381,7 @@ Country: ${form.country || "Not specified"}
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 text-red-600 dark:text-red-400 text-xs">
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-900/10 border border-red-800/30 text-red-400 text-xs animate-fade-in">
                     <HiOutlineExclamationCircle className="text-lg flex-shrink-0" />
                     {error}
                   </div>
@@ -367,7 +390,7 @@ Country: ${form.country || "Not specified"}
                 <button
                   type="submit"
                   disabled={loading || pdfLoading}
-                  className="w-full bg-gradient-to-r from-primary to-primary-light text-white text-sm font-semibold py-4 rounded-xl hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-primary to-primary-light text-white text-sm font-semibold py-4 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>

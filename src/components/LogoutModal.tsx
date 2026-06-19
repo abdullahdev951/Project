@@ -14,7 +14,7 @@ export default function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalP
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose} />
-      <div className="relative bg-[#1E293B] rounded-2xl border border-[#334155] p-6 w-full max-w-sm shadow-2xl animate-scale-in">
+      <div className="relative bg-[#141a22] rounded-2xl border border-[#232b36] p-6 w-full max-w-sm shadow-2xl animate-scale-in">
         <div className="flex flex-col items-center text-center">
           <div className="w-14 h-14 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4">
             <HiOutlineExclamationCircle className="text-red-400 text-3xl" />
@@ -26,7 +26,7 @@ export default function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalP
           <div className="flex gap-3 w-full">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl border border-[#334155] text-sm font-medium text-slate-300 hover:bg-[#334155] transition-all"
+              className="flex-1 px-4 py-2.5 rounded-xl border border-[#232b36] text-sm font-medium text-slate-300 hover:bg-[#232b36] transition-all"
             >
               Cancel
             </button>

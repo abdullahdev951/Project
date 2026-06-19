@@ -31,7 +31,7 @@ function renderMarkdown(text: string) {
 
   return escaped
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-slate-900 text-slate-300 rounded-xl p-4 my-3 overflow-x-auto text-xs leading-relaxed"><code>$2</code></pre>')
-    .replace(/`([^`]+)`/g, '<code class="bg-[#334155] text-primary-light px-1.5 py-0.5 rounded text-xs">$1</code>')
+    .replace(/`([^`]+)`/g, '<code class="bg-[#232b36] text-primary-light px-1.5 py-0.5 rounded text-xs">$1</code>')
     .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-white mt-4 mb-2">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-white mt-4 mb-2">$1</h2>')
     .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-white mt-4 mb-2">$1</h1>')
@@ -221,7 +221,7 @@ export default function AIAssistantPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowHistory(!showHistory)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#334155] text-xs font-medium text-slate-400 hover:text-white hover:border-primary transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#232b36] text-xs font-medium text-slate-400 hover:text-white hover:border-primary transition-all"
             >
               <HiOutlineClock className="text-sm" />
               <span className="hidden sm:inline">History</span>
@@ -237,7 +237,7 @@ export default function AIAssistantPage() {
 
         {/* Chat History Panel */}
         {showHistory && (
-          <div className="mb-3 bg-[#1E293B] rounded-2xl border border-[#334155] p-4 max-h-60 overflow-y-auto animate-slide-down">
+          <div className="mb-3 bg-[#141a22] rounded-2xl border border-[#232b36] p-4 max-h-60 overflow-y-auto animate-slide-down">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Chat History</h3>
             {sessions.length > 0 ? (
               <div className="space-y-1.5">
@@ -248,7 +248,7 @@ export default function AIAssistantPage() {
                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                       activeSessionId === session.id
                         ? "bg-primary/10 border border-primary/30"
-                        : "hover:bg-[#0F172A] border border-transparent"
+                        : "hover:bg-[#0b0e13] border border-transparent"
                     }`}
                   >
                     <div className="flex-1 min-w-0">
@@ -273,7 +273,7 @@ export default function AIAssistantPage() {
         )}
 
         {/* Chat Area */}
-        <div ref={chatRef} className="flex-1 overflow-y-auto py-4 bg-[#1E293B] rounded-2xl border border-[#334155] px-3 sm:px-4 md:px-6">
+        <div ref={chatRef} className="flex-1 overflow-y-auto py-4 bg-[#141a22] rounded-2xl border border-[#232b36] px-3 sm:px-4 md:px-6">
           {error && (
             <div className="mb-3 flex items-center gap-2 p-3 rounded-xl bg-red-900/10 border border-red-800/30 text-red-400 text-sm">
               <HiOutlineExclamationCircle className="text-lg flex-shrink-0" />
@@ -304,7 +304,7 @@ export default function AIAssistantPage() {
                         </span>
                         <button
                           onClick={() => navigator.clipboard.writeText(msg.content)}
-                          className="p-1 rounded-md hover:bg-[#334155] text-slate-500 hover:text-primary-light transition-all"
+                          className="p-1 rounded-md hover:bg-[#232b36] text-slate-500 hover:text-primary-light transition-all"
                           title="Copy"
                         >
                           <HiOutlineClipboardCopy className="text-sm" />
@@ -319,7 +319,7 @@ export default function AIAssistantPage() {
                             a.click();
                             URL.revokeObjectURL(url);
                           }}
-                          className="p-1 rounded-md hover:bg-[#334155] text-slate-500 hover:text-primary-light transition-all"
+                          className="p-1 rounded-md hover:bg-[#232b36] text-slate-500 hover:text-primary-light transition-all"
                           title="Download"
                         >
                           <HiOutlineDownload className="text-sm" />
@@ -375,7 +375,7 @@ export default function AIAssistantPage() {
                   <button
                     key={prompt}
                     onClick={() => sendMessage(prompt)}
-                    className="text-left bg-[#0F172A] border border-[#334155] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs text-slate-400 hover:border-primary hover:text-primary-light transition-all group"
+                    className="text-left bg-[#0b0e13] border border-[#232b36] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs text-slate-400 hover:border-primary hover:text-primary-light transition-all group"
                   >
                     <HiOutlineSparkles className="text-primary inline mr-1.5 opacity-50 group-hover:opacity-100 transition-opacity" />
                     {prompt}
@@ -388,7 +388,7 @@ export default function AIAssistantPage() {
 
         {/* Input Area */}
         <div className="pt-2 sm:pt-3 flex-shrink-0">
-          <div className="bg-[#1E293B] rounded-2xl border border-[#334155] flex items-end gap-2 p-2 sm:p-3">
+          <div className="bg-[#141a22] rounded-2xl border border-[#232b36] flex items-end gap-2 p-2 sm:p-3">
             <textarea
               ref={textareaRef}
               value={input}

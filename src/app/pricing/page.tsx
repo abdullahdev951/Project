@@ -77,10 +77,10 @@ export default function PricingPage() {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative bg-white dark:bg-[#1E293B] rounded-2xl border ${
+              className={`relative bg-white dark:bg-[#141a22] rounded-2xl border ${
                 plan.popular
                   ? "border-primary dark:border-primary shadow-xl shadow-primary/10"
-                  : "border-edge dark:border-[#334155]"
+                  : "border-edge dark:border-[#232b36]"
               } p-8 card-hover`}
             >
               {plan.popular && (
@@ -127,7 +127,7 @@ export default function PricingPage() {
                 className={`w-full py-3 rounded-full font-semibold text-sm transition-all ${
                   plan.popular
                     ? "btn-primary"
-                    : "border-2 border-edge dark:border-[#334155] text-foreground dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary-light"
+                    : "border-2 border-edge dark:border-[#232b36] text-foreground dark:text-slate-300 hover:border-primary dark:hover:border-primary hover:text-primary dark:hover:text-primary-light"
                 }`}
               >
                 {plan.cta}
