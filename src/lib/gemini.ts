@@ -23,7 +23,19 @@ export async function generateAIResponse(
   return response.text();
 }
 
+export interface DashboardSummary {
+  businessName: string;
+  industry: string;
+  country: string;
+  businessAge: string;
+  monthlyRevenue: number;
+  monthlyExpenses: number;
+  marketingBudget: number;
+  numberOfCustomers: number;
+}
+
 export interface DashboardData {
+  summary: DashboardSummary;
   monthlyTrend: { label: string; income: number; expenses: number }[];
   productSales: { name: string; amount: number; percent: number }[];
   recentOrders: { id: string; amount: string; method: string; date: string; status: string }[];
@@ -32,7 +44,19 @@ export interface DashboardData {
   topProducts: { name: string; sales: number; revenue: string; rating: string; status: string }[];
 }
 
+const EMPTY_SUMMARY: DashboardSummary = {
+  businessName: "",
+  industry: "",
+  country: "",
+  businessAge: "",
+  monthlyRevenue: 0,
+  monthlyExpenses: 0,
+  marketingBudget: 0,
+  numberOfCustomers: 0,
+};
+
 const EMPTY_DASHBOARD: DashboardData = {
+  summary: EMPTY_SUMMARY,
   monthlyTrend: [],
   productSales: [],
   recentOrders: [],
@@ -51,6 +75,7 @@ export async function extractDashboardData(input: string): Promise<DashboardData
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `You are a strict data-extraction engine. From the BUSINESS DATA below, extract ONLY information that is explicitly present. DO NOT invent, guess or estimate any values. Return a SINGLE valid JSON object and NOTHING else (no markdown fences, no commentary), with EXACTLY this shape:
 {
+  "summary": {"businessName":"","industry":"","country":"","businessAge":"","monthlyRevenue":0,"monthlyExpenses":0,"marketingBudget":0,"numberOfCustomers":0},
   "monthlyTrend": [{"label":"Jan","income":0,"expenses":0}],
   "productSales": [{"name":"","amount":0,"percent":0}],
   "recentOrders": [{"id":"","amount":"$0","method":"","date":"","status":"Completed"}],
@@ -59,6 +84,7 @@ export async function extractDashboardData(input: string): Promise<DashboardData
   "topProducts": [{"name":"","sales":0,"revenue":"$0","rating":"4.5/5","status":"In Stock"}]
 }
 RULES:
+- "summary": extract the headline business figures. monthlyRevenue/monthlyExpenses/marketingBudget/numberOfCustomers are plain numbers (no "$", no commas); use 0 if not present. businessName/industry/country/businessAge are strings ("" if not present).
 - If a section's data is NOT present in the input, return an empty array for it (or all zeros for salesByGender). Never fabricate rows.
 - "income"/"expenses"/"amount"/"percent"/"sales" must be plain numbers (no "$", no commas).
 - recentOrders.status must be one of: Shipped, Pending, Cancel, Completed.
@@ -79,6 +105,16 @@ ${input}`;
       .trim();
     const parsed = JSON.parse(text);
     return {
+      summary: {
+        businessName: String(parsed.summary?.businessName || ""),
+        industry: String(parsed.summary?.industry || ""),
+        country: String(parsed.summary?.country || ""),
+        businessAge: String(parsed.summary?.businessAge || ""),
+        monthlyRevenue: Number(parsed.summary?.monthlyRevenue) || 0,
+        monthlyExpenses: Number(parsed.summary?.monthlyExpenses) || 0,
+        marketingBudget: Number(parsed.summary?.marketingBudget) || 0,
+        numberOfCustomers: Number(parsed.summary?.numberOfCustomers) || 0,
+      },
       monthlyTrend: Array.isArray(parsed.monthlyTrend) ? parsed.monthlyTrend.slice(0, 8) : [],
       productSales: Array.isArray(parsed.productSales) ? parsed.productSales.slice(0, 8) : [],
       recentOrders: Array.isArray(parsed.recentOrders) ? parsed.recentOrders.slice(0, 8) : [],

@@ -172,8 +172,19 @@ Country: ${form.country || "Not specified"}
         return;
       }
 
-      // Extract structured widget data (orders, products, locations, gender,
-      // monthly trend) from the same input. Non-fatal if it fails.
+      // Extract structured widget data + headline summary from the same input.
+      // Non-fatal if it fails.
+      const emptySummary = {
+        businessName: "",
+        industry: "",
+        country: "",
+        businessAge: "",
+        monthlyRevenue: 0,
+        monthlyExpenses: 0,
+        marketingBudget: 0,
+        numberOfCustomers: 0,
+      };
+      let summary = emptySummary;
       let widgets = {
         monthlyTrend: [],
         productSales: [],
@@ -192,21 +203,31 @@ Country: ${form.country || "Not specified"}
           body: JSON.stringify({ input: input.trim() }),
         });
         const exData = await exRes.json();
-        if (exRes.ok && exData.data) widgets = exData.data;
+        if (exRes.ok && exData.data) {
+          const { summary: s, ...rest } = exData.data;
+          if (s) summary = s;
+          widgets = rest;
+        }
       } catch {
-        // keep empty widgets — dashboard will show empty states
+        // keep empty widgets — dashboard will show zero states
       }
+
+      // Form value first, then AI-extracted value, then 0/default.
+      const num = (formVal: string, extracted: number, isInt = false) => {
+        const parsed = isInt ? parseInt(formVal) : parseFloat(formVal);
+        return parsed || extracted || 0;
+      };
 
       // Save full analysis data for dashboard
       const analysisData = {
-        businessName: form.businessName || pdfFile?.name || "Business",
-        industry: form.industry || "General",
-        monthlyRevenue: parseFloat(form.monthlyRevenue) || 0,
-        monthlyExpenses: parseFloat(form.monthlyExpenses) || 0,
-        marketingBudget: parseFloat(form.marketingBudget) || 0,
-        numberOfCustomers: parseInt(form.numberOfCustomers) || 0,
-        businessAge: form.businessAge || "N/A",
-        country: form.country || "N/A",
+        businessName: form.businessName || summary.businessName || pdfFile?.name || "Business",
+        industry: form.industry || summary.industry || "General",
+        monthlyRevenue: num(form.monthlyRevenue, summary.monthlyRevenue),
+        monthlyExpenses: num(form.monthlyExpenses, summary.monthlyExpenses),
+        marketingBudget: num(form.marketingBudget, summary.marketingBudget),
+        numberOfCustomers: num(form.numberOfCustomers, summary.numberOfCustomers, true),
+        businessAge: form.businessAge || summary.businessAge || "N/A",
+        country: form.country || summary.country || "N/A",
         report: data.output,
         analyzedAt: new Date().toISOString(),
         hasPdf: !!pdfFile,

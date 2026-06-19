@@ -170,17 +170,6 @@ function TrendChart({ data }: { data: { label: string; income: number; expenses:
   );
 }
 
-function EmptyWidget({ text }: { text: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center text-center py-10 gap-3">
-      <div className="w-12 h-12 rounded-xl bg-[#0f141b] border border-[#1b222c] flex items-center justify-center">
-        <HiOutlineChartBar className="text-slate-600 text-xl" />
-      </div>
-      <p className="text-xs text-slate-500 max-w-[200px]">{text}</p>
-    </div>
-  );
-}
-
 const ideas = [
   { title: "Create a Blog Post for your product", body: "Generate SEO-ready blog content from your business data in seconds with AI." },
   { title: "Summarize your latest report", body: "Turn a long PDF into a one-paragraph executive summary instantly." },
@@ -281,6 +270,13 @@ export default function DashboardPage() {
   const genderTotal = w.salesByGender.mens + w.salesByGender.womens + w.salesByGender.kids;
   const productTotal = w.productSales.reduce((s, p) => s + p.amount, 0);
   const locMax = Math.max(...w.revenueByLocation.map((l) => l.amount), 1);
+
+  // Zero / placeholder fallbacks so widgets always render (no "not found" text)
+  const zeroTrend = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"].map((label) => ({ label, income: 0, expenses: 0 }));
+  const placeholderOrders = Array.from({ length: 3 }).map(() => ({ id: "—", amount: "$0", method: "—", date: "—", status: "—" }));
+  const placeholderProducts = Array.from({ length: 3 }).map(() => ({ name: "—", sales: 0, revenue: "$0", rating: "—", status: "—" }));
+  const ordersToShow = w.recentOrders.length ? w.recentOrders : placeholderOrders;
+  const productsToShow = w.topProducts.length ? w.topProducts : placeholderProducts;
 
   return (
     <DashboardLayout>
@@ -403,32 +399,27 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <Card className="xl:col-span-2 p-5 sm:p-6">
             <h3 className="text-white font-semibold mb-2">Income vs Expenses</h3>
-            {w.monthlyTrend.length > 1 ? (
-              <TrendChart data={w.monthlyTrend} />
-            ) : (
-              <EmptyWidget text="No monthly trend found in your data. Upload a report with month-by-month figures to see moving lines." />
-            )}
+            <TrendChart data={w.monthlyTrend.length > 1 ? w.monthlyTrend : zeroTrend} />
           </Card>
 
           <Card className="p-5 sm:p-6">
             <h3 className="text-white font-semibold mb-2">Product Sales</h3>
-            {w.productSales.length ? (
-              <>
-                <div className="relative flex justify-center my-4">
-                  <Donut segments={w.productSales.map((p, i) => ({ value: p.amount || p.percent || 1, color: DONUT_COLORS[i % DONUT_COLORS.length] }))} />
+            <div className="relative flex justify-center my-4">
+              <Donut segments={w.productSales.length ? w.productSales.map((p, i) => ({ value: p.amount || p.percent || 1, color: DONUT_COLORS[i % DONUT_COLORS.length] })) : []} />
+              {!w.productSales.length && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-bold text-slate-500">$0</span>
                 </div>
-                <div className="space-y-3">
-                  {w.productSales.map((p, i) => (
-                    <div key={p.name + i} className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2 text-slate-300"><span className="w-2.5 h-2.5 rounded-full" style={{ background: DONUT_COLORS[i % DONUT_COLORS.length] }} />{p.name}</span>
-                      <span className="text-slate-400"><span className="text-white font-medium">{formatCurrency(p.amount)}</span>{productTotal > 0 ? ` ${Math.round((p.amount / productTotal) * 100)}%` : ""}</span>
-                    </div>
-                  ))}
+              )}
+            </div>
+            <div className="space-y-3">
+              {(w.productSales.length ? w.productSales : [{ name: "—", amount: 0, percent: 0 }, { name: "—", amount: 0, percent: 0 }]).map((p, i) => (
+                <div key={p.name + i} className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2 text-slate-300"><span className="w-2.5 h-2.5 rounded-full" style={{ background: w.productSales.length ? DONUT_COLORS[i % DONUT_COLORS.length] : "#232b36" }} />{p.name}</span>
+                  <span className="text-slate-400"><span className="text-white font-medium">{formatCurrency(p.amount)}</span>{productTotal > 0 ? ` ${Math.round((p.amount / productTotal) * 100)}%` : " 0%"}</span>
                 </div>
-              </>
-            ) : (
-              <EmptyWidget text="No product sales breakdown found in your data." />
-            )}
+              ))}
+            </div>
           </Card>
         </div>
 
@@ -436,34 +427,30 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <Card className="xl:col-span-2 p-5 sm:p-6">
             <h3 className="text-white font-semibold mb-4">Recent Orders</h3>
-            {w.recentOrders.length ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-slate-500 border-b border-[#1b222c]">
-                      <th className="py-3 font-medium">Order ID</th>
-                      <th className="py-3 font-medium">Amount</th>
-                      <th className="py-3 font-medium hidden sm:table-cell">Shipping</th>
-                      <th className="py-3 font-medium hidden md:table-cell">Delivery Date</th>
-                      <th className="py-3 font-medium">Status</th>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-slate-500 border-b border-[#1b222c]">
+                    <th className="py-3 font-medium">Order ID</th>
+                    <th className="py-3 font-medium">Amount</th>
+                    <th className="py-3 font-medium hidden sm:table-cell">Shipping</th>
+                    <th className="py-3 font-medium hidden md:table-cell">Delivery Date</th>
+                    <th className="py-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ordersToShow.map((o, i) => (
+                    <tr key={i} className="border-b border-[#1b222c]/60 hover:bg-[#0f141b] transition-colors">
+                      <td className="py-3 text-slate-200">{o.id}</td>
+                      <td className="py-3 text-slate-300">{o.amount}</td>
+                      <td className="py-3 text-slate-400 hidden sm:table-cell">{o.method}</td>
+                      <td className="py-3 text-slate-400 hidden md:table-cell">{o.date}</td>
+                      <td className="py-3"><span className={`px-2.5 py-1 rounded-md text-xs font-medium ${orderStatus[o.status] || "bg-[#1b222c] text-slate-500"}`}>{o.status}</span></td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {w.recentOrders.map((o, i) => (
-                      <tr key={i} className="border-b border-[#1b222c]/60 hover:bg-[#0f141b] transition-colors">
-                        <td className="py-3 text-slate-200">{o.id}</td>
-                        <td className="py-3 text-slate-300">{o.amount}</td>
-                        <td className="py-3 text-slate-400 hidden sm:table-cell">{o.method}</td>
-                        <td className="py-3 text-slate-400 hidden md:table-cell">{o.date}</td>
-                        <td className="py-3"><span className={`px-2.5 py-1 rounded-md text-xs font-medium ${orderStatus[o.status] || "bg-slate-700/40 text-slate-300"}`}>{o.status}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <EmptyWidget text="No order records found in your data." />
-            )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
 
           <Card className="p-5 sm:p-6">
@@ -499,52 +486,42 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
           <Card className="p-5 sm:p-6">
             <h3 className="text-white font-semibold mb-2">Sales by Gender</h3>
-            {genderTotal > 0 ? (
-              <>
-                <div className="flex justify-center my-6">
-                  <Donut segments={[{ value: w.salesByGender.mens, color: "#00a76f" }, { value: w.salesByGender.womens, color: "#f5a524" }, { value: w.salesByGender.kids, color: "#f87171" }]} size={190} thickness={16} />
-                </div>
-                <div className="flex items-center justify-center gap-5 text-sm">
-                  <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-primary" />Mens {Math.round((w.salesByGender.mens / genderTotal) * 100)}%</span>
-                  <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" />Womens {Math.round((w.salesByGender.womens / genderTotal) * 100)}%</span>
-                  <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-red-400" />Kids {Math.round((w.salesByGender.kids / genderTotal) * 100)}%</span>
-                </div>
-              </>
-            ) : (
-              <EmptyWidget text="No customer gender breakdown found in your data." />
-            )}
+            <div className="flex justify-center my-6">
+              <Donut segments={genderTotal > 0 ? [{ value: w.salesByGender.mens, color: "#00a76f" }, { value: w.salesByGender.womens, color: "#f5a524" }, { value: w.salesByGender.kids, color: "#f87171" }] : []} size={190} thickness={16} />
+            </div>
+            <div className="flex items-center justify-center gap-5 text-sm">
+              <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-primary" />Mens {genderTotal > 0 ? Math.round((w.salesByGender.mens / genderTotal) * 100) : 0}%</span>
+              <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" />Womens {genderTotal > 0 ? Math.round((w.salesByGender.womens / genderTotal) * 100) : 0}%</span>
+              <span className="flex items-center gap-1.5 text-slate-300"><span className="w-2.5 h-2.5 rounded-full bg-red-400" />Kids {genderTotal > 0 ? Math.round((w.salesByGender.kids / genderTotal) * 100) : 0}%</span>
+            </div>
           </Card>
 
           <Card className="xl:col-span-2 p-5 sm:p-6">
             <h3 className="text-white font-semibold mb-4">Top Selling Products</h3>
-            {w.topProducts.length ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-slate-500 border-b border-[#1b222c]">
-                      <th className="py-3 font-medium">Product</th>
-                      <th className="py-3 font-medium">Sale</th>
-                      <th className="py-3 font-medium hidden sm:table-cell">Revenue</th>
-                      <th className="py-3 font-medium hidden md:table-cell">Rating</th>
-                      <th className="py-3 font-medium">Status</th>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-slate-500 border-b border-[#1b222c]">
+                    <th className="py-3 font-medium">Product</th>
+                    <th className="py-3 font-medium">Sale</th>
+                    <th className="py-3 font-medium hidden sm:table-cell">Revenue</th>
+                    <th className="py-3 font-medium hidden md:table-cell">Rating</th>
+                    <th className="py-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productsToShow.map((p, i) => (
+                    <tr key={i} className="border-b border-[#1b222c]/60 hover:bg-[#0f141b] transition-colors">
+                      <td className="py-3"><div className="flex items-center gap-3"><span className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/30 to-[#1b222c]" /><span className="text-slate-200">{p.name}</span></div></td>
+                      <td className="py-3 text-slate-300">{p.sales}</td>
+                      <td className="py-3 text-slate-400 hidden sm:table-cell">{p.revenue}</td>
+                      <td className="py-3 text-amber-400 hidden md:table-cell">{p.rating === "—" ? "—" : `★ ${p.rating}`}</td>
+                      <td className="py-3"><span className={`px-2.5 py-1 rounded-md text-xs font-medium ${stockStatus[p.status] || "bg-[#1b222c] text-slate-500"}`}>{p.status}</span></td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {w.topProducts.map((p, i) => (
-                      <tr key={i} className="border-b border-[#1b222c]/60 hover:bg-[#0f141b] transition-colors">
-                        <td className="py-3"><div className="flex items-center gap-3"><span className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/30 to-[#1b222c]" /><span className="text-slate-200">{p.name}</span></div></td>
-                        <td className="py-3 text-slate-300">{p.sales}</td>
-                        <td className="py-3 text-slate-400 hidden sm:table-cell">{p.revenue}</td>
-                        <td className="py-3 text-amber-400 hidden md:table-cell">★ {p.rating}</td>
-                        <td className="py-3"><span className={`px-2.5 py-1 rounded-md text-xs font-medium ${stockStatus[p.status] || "bg-slate-700/40 text-slate-300"}`}>{p.status}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <EmptyWidget text="No product catalog found in your data." />
-            )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Card>
         </div>
 

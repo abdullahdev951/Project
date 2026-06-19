@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     // Non-fatal: return empty structure so the dashboard still renders
     return NextResponse.json({
       data: {
+        summary: { businessName: "", industry: "", country: "", businessAge: "", monthlyRevenue: 0, monthlyExpenses: 0, marketingBudget: 0, numberOfCustomers: 0 },
         monthlyTrend: [],
         productSales: [],
         recentOrders: [],
