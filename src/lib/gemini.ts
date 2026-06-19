@@ -23,6 +23,79 @@ export async function generateAIResponse(
   return response.text();
 }
 
+export interface DashboardData {
+  monthlyTrend: { label: string; income: number; expenses: number }[];
+  productSales: { name: string; amount: number; percent: number }[];
+  recentOrders: { id: string; amount: string; method: string; date: string; status: string }[];
+  revenueByLocation: { country: string; amount: number }[];
+  salesByGender: { mens: number; womens: number; kids: number };
+  topProducts: { name: string; sales: number; revenue: string; rating: string; status: string }[];
+}
+
+const EMPTY_DASHBOARD: DashboardData = {
+  monthlyTrend: [],
+  productSales: [],
+  recentOrders: [],
+  revenueByLocation: [],
+  salesByGender: { mens: 0, womens: 0, kids: 0 },
+  topProducts: [],
+};
+
+/**
+ * Extracts structured dashboard data from the business text / PDF content.
+ * Only returns data that is actually present — empty arrays / zeros otherwise.
+ * Never throws; returns empty structure on any failure so the dashboard still renders.
+ */
+export async function extractDashboardData(input: string): Promise<DashboardData> {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const prompt = `You are a strict data-extraction engine. From the BUSINESS DATA below, extract ONLY information that is explicitly present. DO NOT invent, guess or estimate any values. Return a SINGLE valid JSON object and NOTHING else (no markdown fences, no commentary), with EXACTLY this shape:
+{
+  "monthlyTrend": [{"label":"Jan","income":0,"expenses":0}],
+  "productSales": [{"name":"","amount":0,"percent":0}],
+  "recentOrders": [{"id":"","amount":"$0","method":"","date":"","status":"Completed"}],
+  "revenueByLocation": [{"country":"","amount":0}],
+  "salesByGender": {"mens":0,"womens":0,"kids":0},
+  "topProducts": [{"name":"","sales":0,"revenue":"$0","rating":"4.5/5","status":"In Stock"}]
+}
+RULES:
+- If a section's data is NOT present in the input, return an empty array for it (or all zeros for salesByGender). Never fabricate rows.
+- "income"/"expenses"/"amount"/"percent"/"sales" must be plain numbers (no "$", no commas).
+- recentOrders.status must be one of: Shipped, Pending, Cancel, Completed.
+- topProducts.status must be one of: In Stock, Low Stock, Out of Stock.
+- salesByGender values are counts or percentages as found in the data.
+- Limit every array to at most 8 items.
+
+BUSINESS DATA:
+${input}`;
+
+    const result = await model.generateContent(prompt);
+    let text = result.response.text().trim();
+    // strip ```json ... ``` fences if present
+    text = text
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/```$/i, "")
+      .trim();
+    const parsed = JSON.parse(text);
+    return {
+      monthlyTrend: Array.isArray(parsed.monthlyTrend) ? parsed.monthlyTrend.slice(0, 8) : [],
+      productSales: Array.isArray(parsed.productSales) ? parsed.productSales.slice(0, 8) : [],
+      recentOrders: Array.isArray(parsed.recentOrders) ? parsed.recentOrders.slice(0, 8) : [],
+      revenueByLocation: Array.isArray(parsed.revenueByLocation) ? parsed.revenueByLocation.slice(0, 8) : [],
+      salesByGender: {
+        mens: Number(parsed.salesByGender?.mens) || 0,
+        womens: Number(parsed.salesByGender?.womens) || 0,
+        kids: Number(parsed.salesByGender?.kids) || 0,
+      },
+      topProducts: Array.isArray(parsed.topProducts) ? parsed.topProducts.slice(0, 8) : [],
+    };
+  } catch (e) {
+    console.error("extractDashboardData failed:", e);
+    return EMPTY_DASHBOARD;
+  }
+}
+
 export async function generateImage(
   prompt: string,
   style?: string

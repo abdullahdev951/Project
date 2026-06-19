@@ -172,6 +172,31 @@ Country: ${form.country || "Not specified"}
         return;
       }
 
+      // Extract structured widget data (orders, products, locations, gender,
+      // monthly trend) from the same input. Non-fatal if it fails.
+      let widgets = {
+        monthlyTrend: [],
+        productSales: [],
+        recentOrders: [],
+        revenueByLocation: [],
+        salesByGender: { mens: 0, womens: 0, kids: 0 },
+        topProducts: [],
+      };
+      try {
+        const exRes = await fetch("/api/extract-data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ input: input.trim() }),
+        });
+        const exData = await exRes.json();
+        if (exRes.ok && exData.data) widgets = exData.data;
+      } catch {
+        // keep empty widgets — dashboard will show empty states
+      }
+
       // Save full analysis data for dashboard
       const analysisData = {
         businessName: form.businessName || pdfFile?.name || "Business",
@@ -186,6 +211,7 @@ Country: ${form.country || "Not specified"}
         analyzedAt: new Date().toISOString(),
         hasPdf: !!pdfFile,
         pdfName: pdfFile?.name || null,
+        widgets,
       };
       localStorage.setItem("analysisData", JSON.stringify(analysisData));
       localStorage.setItem("analysisReport", data.output);
