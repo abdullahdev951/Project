@@ -203,36 +203,21 @@ export default function AIAssistantPage() {
   return (
     <DashboardLayout>
       <div className="flex flex-col h-[calc(100vh-7rem)] sm:h-[calc(100vh-8rem)] max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3 sm:pb-4 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center shadow-sm">
-              <HiOutlineChatBubbleLeftRight className="text-white text-base sm:text-lg" />
-            </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-bold text-white">
-                AI Assistant
-              </h1>
-              <p className="text-[10px] sm:text-xs text-slate-400 hidden sm:block">
-                Ask me anything — business advice, marketing ideas, content writing
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#232b36] text-xs font-medium text-slate-400 hover:text-white hover:border-primary transition-all"
-            >
-              <HiOutlineClock className="text-sm" />
-              <span className="hidden sm:inline">History</span>
-            </button>
-            <button
-              onClick={startNewChat}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-all"
-            >
-              + <span className="hidden sm:inline">New Chat</span>
-            </button>
-          </div>
+        {/* Top actions only (header removed) */}
+        <div className="flex items-center justify-end gap-2 pb-3 sm:pb-4 flex-shrink-0">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#232b36] text-xs font-medium text-slate-400 hover:text-white hover:border-primary transition-all"
+          >
+            <HiOutlineClock className="text-sm" />
+            <span className="hidden sm:inline">History</span>
+          </button>
+          <button
+            onClick={startNewChat}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-all"
+          >
+            + <span className="hidden sm:inline">New Chat</span>
+          </button>
         </div>
 
         {/* Chat History Panel */}

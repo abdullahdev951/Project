@@ -49,13 +49,8 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#0b0e13]/80 border-b border-[#1b222c]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center shadow-lg shadow-primary/25">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="13" width="4" height="8" rx="1.5" fill="white" opacity="0.55" />
-                <rect x="10" y="8" width="4" height="13" rx="1.5" fill="white" opacity="0.8" />
-                <rect x="17" y="3" width="4" height="18" rx="1.5" fill="white" />
-              </svg>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="AI Assist Pro" className="w-9 h-9 rounded-xl object-contain" />
             <span className="text-lg font-bold text-white tracking-tight">
               AI Assist <span className="text-primary-light">Pro</span>
             </span>
@@ -256,9 +251,8 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
-                <HiOutlineChartBar className="text-white" />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.png" alt="AI Assist Pro" className="w-8 h-8 rounded-lg object-contain" />
               <span className="font-bold text-white">AI Assist <span className="text-primary-light">Pro</span></span>
             </Link>
             <p className="text-sm text-slate-500 mt-4 max-w-sm">

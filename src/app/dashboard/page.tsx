@@ -316,12 +316,12 @@ export default function DashboardPage() {
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 animate-fade-in-up pt-2">
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-primary-light uppercase tracking-widest mb-2">Business Analytics</p>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">{data.businessName}</h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">{data.industry} &bull; Analyzed {analyzedDate}</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white break-words line-clamp-2" title={data.businessName}>{data.businessName}</h1>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 truncate">{data.industry} &bull; Analyzed {analyzedDate}</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link href="/upload" className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary-dark transition-all shadow-lg shadow-primary/20">
               <HiOutlineUpload className="text-sm" /><span className="hidden sm:inline">New Analysis</span><span className="sm:hidden">New</span>
             </Link>

@@ -5,7 +5,7 @@ import { History } from "@/lib/models/History";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { generateAIResponse, generateImage } from "@/lib/gemini";
 
-const FREE_DAILY_LIMIT = 10;
+const FREE_DAILY_LIMIT = 25;
 
 export async function POST(req: NextRequest) {
   try {

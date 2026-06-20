@@ -116,8 +116,8 @@ export default function UploadPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     const hasFormData = form.businessName || form.industry || form.monthlyRevenue || form.monthlyExpenses;
     const hasPdf = pdfText;
 
@@ -237,7 +237,7 @@ Country: ${form.country || "Not specified"}
       localStorage.setItem("analysisData", JSON.stringify(analysisData));
       localStorage.setItem("analysisReport", data.output);
       localStorage.setItem("analysisBusinessName", analysisData.businessName);
-      router.push("/reports");
+      router.push("/dashboard");
     } catch {
       setError("Failed to connect. Please try again.");
     } finally {
@@ -340,6 +340,27 @@ Country: ${form.country || "Not specified"}
                     </button>
                   )}
                 </div>
+
+                {/* Analyze this PDF directly → dashboard */}
+                <button
+                  type="button"
+                  onClick={() => handleSubmit()}
+                  disabled={loading || pdfLoading}
+                  className="mt-3 w-full bg-gradient-to-r from-primary to-primary-light text-white text-sm font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <HiOutlineChartBar className="text-lg" />
+                      Analyze PDF
+                      <HiOutlineArrowRight />
+                    </>
+                  )}
+                </button>
               </div>
             )}
 

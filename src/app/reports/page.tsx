@@ -40,12 +40,26 @@ function renderMarkdown(text: string) {
 export default function ReportsPage() {
   const [report, setReport] = useState<string>("");
   const [businessName, setBusinessName] = useState<string>("");
+  const [pdfName, setPdfName] = useState<string | null>(null);
+  const [analyzedAt, setAnalyzedAt] = useState<string>("");
 
   useEffect(() => {
     const savedReport = localStorage.getItem("analysisReport");
     const savedBusiness = localStorage.getItem("analysisBusinessName");
     if (savedReport) setReport(savedReport);
     if (savedBusiness) setBusinessName(savedBusiness);
+    try {
+      const raw = localStorage.getItem("analysisData");
+      if (raw) {
+        const d = JSON.parse(raw);
+        setPdfName(d.pdfName || null);
+        if (d.analyzedAt) {
+          setAnalyzedAt(new Date(d.analyzedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }));
+        }
+      }
+    } catch {
+      // ignore
+    }
   }, []);
 
   const copyResult = () => {
@@ -114,6 +128,32 @@ export default function ReportsPage() {
             </div>
           )}
         </div>
+
+        {/* Uploaded PDF card */}
+        {report && pdfName && (
+          <div className="relative overflow-hidden rounded-2xl border border-[#1b222c] bg-gradient-to-br from-primary/10 via-[#141a22] to-[#141a22] p-5 animate-fade-in-up">
+            <div className="absolute -right-10 -top-10 w-36 h-36 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
+                <HiOutlineDocumentText className="text-white text-2xl" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-primary/15 text-primary-light">UPLOADED FILE</span>
+                  {analyzedAt && <span className="text-[11px] text-slate-500">Analyzed {analyzedAt}</span>}
+                </div>
+                <p className="text-base sm:text-lg font-bold text-white truncate" title={pdfName}>{pdfName}</p>
+                <p className="text-xs text-slate-400 mt-0.5">This report was generated from your uploaded document.</p>
+              </div>
+              <button
+                onClick={downloadResult}
+                className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0f141b] border border-[#232b36] text-sm font-medium text-slate-300 hover:border-primary hover:text-primary-light transition-all flex-shrink-0"
+              >
+                <HiOutlineDownload className="text-sm" /> Download
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Summary stat cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 stagger">
