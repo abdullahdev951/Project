@@ -192,13 +192,59 @@ export default function DashboardPage() {
     if (saved) {
       try {
         setData(JSON.parse(saved));
+        return;
+      } catch {
+        // fall through to DB fetch
+      }
+    }
+    // Fallback: load the latest saved analysis from the backend so the
+    // dashboard survives even if local storage was cleared.
+    (async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const res = await fetch("/api/analyses", { headers: { Authorization: `Bearer ${token}` } });
+        const d = await res.json();
+        if (res.ok && d.analyses?.length) {
+          const a = d.analyses[0];
+          setData({
+            businessName: a.businessName,
+            industry: a.industry,
+            monthlyRevenue: a.monthlyRevenue,
+            monthlyExpenses: a.monthlyExpenses,
+            marketingBudget: a.marketingBudget,
+            numberOfCustomers: a.numberOfCustomers,
+            businessAge: a.businessAge,
+            country: a.country,
+            report: a.report,
+            analyzedAt: a.createdAt,
+            hasPdf: a.hasPdf,
+            pdfName: a.pdfName,
+            widgets: a.widgets,
+          });
+          localStorage.setItem("activeAnalysisId", String(a._id));
+        }
       } catch {
         // ignore
       }
-    }
+    })();
   }, []);
 
-  const clearAnalysis = () => {
+  const clearAnalysis = async () => {
+    // Also delete the saved analysis from the backend if we know its id.
+    const id = localStorage.getItem("activeAnalysisId");
+    if (id) {
+      try {
+        const token = localStorage.getItem("token");
+        await fetch(`/api/analyses/${id}`, {
+          method: "DELETE",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+      } catch {
+        // ignore
+      }
+      localStorage.removeItem("activeAnalysisId");
+    }
     localStorage.removeItem("analysisData");
     localStorage.removeItem("analysisReport");
     localStorage.removeItem("analysisBusinessName");

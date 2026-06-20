@@ -54,6 +54,7 @@ export default function UploadPage() {
     country: "",
   });
   const [loading, setLoading] = useState(false);
+  const [loadingSource, setLoadingSource] = useState<"pdf" | "form" | null>(null);
   const [error, setError] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfText, setPdfText] = useState("");
@@ -116,7 +117,7 @@ export default function UploadPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent, source: "pdf" | "form" = "form") => {
     e?.preventDefault();
     const hasFormData = form.businessName || form.industry || form.monthlyRevenue || form.monthlyExpenses;
     const hasPdf = pdfText;
@@ -131,6 +132,7 @@ export default function UploadPage() {
     }
 
     setLoading(true);
+    setLoadingSource(source);
     setError("");
 
     try {
@@ -234,6 +236,25 @@ Country: ${form.country || "Not specified"}
         pdfName: pdfFile?.name || null,
         widgets,
       };
+      // Persist to backend so reports are saved permanently (not just locally).
+      try {
+        const saveRes = await fetch("/api/analyses", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify(analysisData),
+        });
+        const saveData = await saveRes.json();
+        if (saveRes.ok && saveData.id) {
+          localStorage.setItem("activeAnalysisId", String(saveData.id));
+        }
+      } catch {
+        // non-fatal — still works via the active-view localStorage below
+      }
+
+      // Active view for the dashboard (current analysis only).
       localStorage.setItem("analysisData", JSON.stringify(analysisData));
       localStorage.setItem("analysisReport", data.output);
       localStorage.setItem("analysisBusinessName", analysisData.businessName);
@@ -242,6 +263,7 @@ Country: ${form.country || "Not specified"}
       setError("Failed to connect. Please try again.");
     } finally {
       setLoading(false);
+      setLoadingSource(null);
     }
   };
 
@@ -344,11 +366,11 @@ Country: ${form.country || "Not specified"}
                 {/* Analyze this PDF directly → dashboard */}
                 <button
                   type="button"
-                  onClick={() => handleSubmit()}
+                  onClick={() => handleSubmit(undefined, "pdf")}
                   disabled={loading || pdfLoading}
                   className="mt-3 w-full bg-gradient-to-r from-primary to-primary-light text-white text-sm font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {loading ? (
+                  {loadingSource === "pdf" ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Analyzing...
@@ -460,7 +482,7 @@ Country: ${form.country || "Not specified"}
                   disabled={loading || pdfLoading}
                   className="w-full bg-gradient-to-r from-primary to-primary-light text-white text-sm font-semibold py-4 rounded-xl hover:shadow-lg hover:shadow-primary/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {loading ? (
+                  {loadingSource === "form" ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       Analyzing...
