@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "./Sidebar";
 import SmallFooter from "./SmallFooter";
 import LogoutModal from "./LogoutModal";
+import AskAiPanel from "./AskAiPanel";
 import { useAuth } from "@/lib/AuthContext";
 import {
   HiOutlineBell,
@@ -14,6 +15,7 @@ import {
   HiOutlineSearch,
   HiOutlineMenuAlt2,
   HiOutlineX,
+  HiOutlineSparkles,
 } from "react-icons/hi";
 
 export default function DashboardLayout({
@@ -26,6 +28,7 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [askAiOpen, setAskAiOpen] = useState(false);
 
   // Auth protection - redirect to login if not signed in
   useEffect(() => {
@@ -142,6 +145,20 @@ export default function DashboardLayout({
 
         <SmallFooter />
       </div>
+
+      {/* Floating Ask AI button */}
+      {!askAiOpen && (
+        <button
+          onClick={() => setAskAiOpen(true)}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-5 py-3.5 rounded-full bg-gradient-to-r from-primary to-primary-light text-white font-semibold shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:scale-105 transition-all animate-pulse-glow"
+        >
+          <HiOutlineSparkles className="text-lg" />
+          Ask AI
+        </button>
+      )}
+
+      {/* Ask AI slide-over panel */}
+      <AskAiPanel open={askAiOpen} onClose={() => setAskAiOpen(false)} />
 
       {/* Notifications slide-over panel */}
       {notifOpen && (

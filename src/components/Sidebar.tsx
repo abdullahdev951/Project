@@ -14,14 +14,12 @@ import {
 import {
   HiOutlineSquares2X2,
   HiOutlineDocumentArrowUp,
-  HiOutlineChatBubbleLeftRight,
   HiOutlineChartBarSquare,
 } from "react-icons/hi2";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: HiOutlineSquares2X2 },
   { name: "Upload & Analyze", href: "/upload", icon: HiOutlineDocumentArrowUp },
-  { name: "AI Assistant", href: "/ai-assistant", icon: HiOutlineChatBubbleLeftRight },
   { name: "Reports", href: "/reports", icon: HiOutlineChartBarSquare },
 ];
 
