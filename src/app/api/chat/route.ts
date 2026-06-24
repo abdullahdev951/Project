@@ -78,6 +78,8 @@ export async function POST(req: NextRequest) {
     const msg = error instanceof Error ? error.message : "";
     const errorMessage = msg.includes("API_KEY")
       ? "AI API key not configured. Add your Gemini API key in .env.local"
+      : msg.includes("503") || msg.includes("high demand") || msg.includes("overload") || msg.includes("Service Unavailable")
+      ? "The AI is busy right now. Please try again in a few seconds."
       : msg.includes("429") || msg.includes("quota")
       ? "Rate limit reached. Please wait a few seconds and try again."
       : "AI generation failed. Please try again.";

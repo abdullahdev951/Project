@@ -139,7 +139,7 @@ export default function AskAiPanel({ open, onClose }: { open: boolean; onClose: 
               disabled={loading || !input.trim()}
               className="w-9 h-9 rounded-lg bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-all disabled:opacity-50 flex-shrink-0"
             >
-              <HiPaperAirplane className="rotate-90 text-base" />
+              <HiPaperAirplane className="text-base" />
             </button>
           </div>
           <p className="text-[10px] text-slate-600 text-center mt-2">Press Enter to send, Shift+Enter for new line</p>

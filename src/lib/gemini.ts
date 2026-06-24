@@ -2,13 +2,51 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
+// Models tried in order; if the primary is overloaded (503), fall back.
+const TEXT_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"];
+
+function isTransient(msg: string) {
+  return (
+    msg.includes("503") ||
+    msg.includes("Service Unavailable") ||
+    msg.includes("high demand") ||
+    msg.includes("overload") ||
+    msg.includes("429")
+  );
+}
+
+/**
+ * Generate text with retry + model fallback so temporary Gemini overloads
+ * (503 "high demand") don't surface as hard failures.
+ */
+async function generateTextWithFallback(prompt: string): Promise<string> {
+  let lastErr: unknown = new Error("AI request failed");
+  for (const modelName of TEXT_MODELS) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        return result.response.text();
+      } catch (e) {
+        lastErr = e;
+        const msg = e instanceof Error ? e.message : String(e);
+        if (isTransient(msg)) {
+          // brief backoff, then retry (or move to the fallback model)
+          await new Promise((r) => setTimeout(r, 700 * (attempt + 1)));
+          continue;
+        }
+        break; // non-transient → try next model
+      }
+    }
+  }
+  throw lastErr;
+}
+
 export async function generateAIResponse(
   tool: string,
   input: string,
   extraFields?: Record<string, string>
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
   const extraContext = extraFields
     ? Object.entries(extraFields)
         .filter(([, v]) => v)
@@ -17,10 +55,7 @@ export async function generateAIResponse(
     : "";
 
   const prompt = buildPrompt(tool, input, extraContext);
-
-  const result = await model.generateContent(prompt);
-  const response = result.response;
-  return response.text();
+  return generateTextWithFallback(prompt);
 }
 
 export interface DashboardSummary {
@@ -72,7 +107,6 @@ const EMPTY_DASHBOARD: DashboardData = {
  */
 export async function extractDashboardData(input: string): Promise<DashboardData> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `You are a strict data-extraction engine. From the BUSINESS DATA below, extract ONLY information that is explicitly present. DO NOT invent, guess or estimate any values. Return a SINGLE valid JSON object and NOTHING else (no markdown fences, no commentary), with EXACTLY this shape:
 {
   "summary": {"businessName":"","industry":"","country":"","businessAge":"","monthlyRevenue":0,"monthlyExpenses":0,"marketingBudget":0,"numberOfCustomers":0},
@@ -95,8 +129,7 @@ RULES:
 BUSINESS DATA:
 ${input}`;
 
-    const result = await model.generateContent(prompt);
-    let text = result.response.text().trim();
+    let text = (await generateTextWithFallback(prompt)).trim();
     // strip ```json ... ``` fences if present
     text = text
       .replace(/^```json\s*/i, "")
