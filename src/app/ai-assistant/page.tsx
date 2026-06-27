@@ -11,6 +11,7 @@ import {
 } from "react-icons/hi";
 import { HiPaperAirplane, HiOutlineChatBubbleLeftRight, HiOutlineClock } from "react-icons/hi2";
 import Markdown from "@/components/Markdown";
+import { getBusinessContext } from "@/lib/aiContext";
 
 interface ChatMessage {
   role: "user" | "ai";
@@ -116,6 +117,7 @@ export default function AIAssistantPage() {
 
     try {
       const token = localStorage.getItem("token");
+      const context = await getBusinessContext();
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -126,7 +128,7 @@ export default function AIAssistantPage() {
           tool: "AI Assistant",
           module: "AI Assistant",
           input: msg,
-          extraFields: {},
+          extraFields: context ? { "Business Context": context } : {},
         }),
       });
 

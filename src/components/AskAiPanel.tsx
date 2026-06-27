@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { HiOutlineX, HiOutlineSparkles, HiOutlineExclamationCircle } from "react-icons/hi";
 import { HiPaperAirplane } from "react-icons/hi2";
 import Markdown from "@/components/Markdown";
+import { getBusinessContext } from "@/lib/aiContext";
 
 interface Msg {
   role: "user" | "ai";
@@ -30,13 +31,19 @@ export default function AskAiPanel({ open, onClose }: { open: boolean; onClose: 
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
+      const context = await getBusinessContext();
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ tool: "AI Assistant", module: "AI Assistant", input: text, extraFields: {} }),
+        body: JSON.stringify({
+          tool: "AI Assistant",
+          module: "AI Assistant",
+          input: text,
+          extraFields: context ? { "Business Context": context } : {},
+        }),
       });
       const data = await res.json();
       if (!res.ok) setError(data.error || "Something went wrong");
