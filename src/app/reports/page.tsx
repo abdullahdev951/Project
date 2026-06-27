@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
   HiOutlineChartBar,
@@ -19,8 +20,14 @@ interface AnalysisItem {
   pdfName?: string | null;
   hasPdf: boolean;
   industry: string;
+  country: string;
+  businessAge: string;
   monthlyRevenue: number;
   monthlyExpenses: number;
+  marketingBudget: number;
+  numberOfCustomers: number;
+  report: string;
+  widgets: Record<string, unknown>;
   createdAt: string;
 }
 
@@ -32,10 +39,35 @@ const formatCurrency = (n: number) => {
 };
 
 export default function ReportsPage() {
+  const router = useRouter();
   const [items, setItems] = useState<AnalysisItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+
+  // Load this report's analysis onto the dashboard and go there.
+  const openOnDashboard = (it: AnalysisItem) => {
+    const analysisData = {
+      businessName: it.businessName,
+      industry: it.industry,
+      monthlyRevenue: it.monthlyRevenue,
+      monthlyExpenses: it.monthlyExpenses,
+      marketingBudget: it.marketingBudget,
+      numberOfCustomers: it.numberOfCustomers,
+      businessAge: it.businessAge,
+      country: it.country,
+      report: it.report,
+      analyzedAt: it.createdAt,
+      hasPdf: it.hasPdf,
+      pdfName: it.pdfName || null,
+      widgets: it.widgets || {},
+    };
+    localStorage.setItem("analysisData", JSON.stringify(analysisData));
+    localStorage.setItem("analysisReport", it.report);
+    localStorage.setItem("analysisBusinessName", it.businessName);
+    localStorage.setItem("activeAnalysisId", it._id);
+    router.push("/dashboard");
+  };
 
   const load = useCallback(async () => {
     try {
@@ -143,19 +175,23 @@ export default function ReportsPage() {
                 >
                   <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="relative">
-                    <div className="flex items-start gap-3 mb-4">
+                    <button
+                      onClick={() => openOnDashboard(it)}
+                      className="flex items-start gap-3 mb-4 w-full text-left group/card"
+                      title="Open this analysis on the dashboard"
+                    >
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary/20">
                         <HiOutlineDocumentText className="text-white text-xl" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="text-base font-bold text-white truncate" title={it.businessName}>{it.businessName}</h3>
+                        <h3 className="text-base font-bold text-white truncate group-hover/card:text-primary-light transition-colors" title={it.businessName}>{it.businessName}</h3>
                         <p className="text-[11px] text-slate-500 truncate">
                           {it.hasPdf && it.pdfName ? it.pdfName : it.industry || "Manual entry"} · {formatDate(it.createdAt)}
                         </p>
                       </div>
-                    </div>
+                    </button>
 
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div onClick={() => openOnDashboard(it)} className="grid grid-cols-2 gap-3 mb-4 cursor-pointer">
                       <div className="rounded-xl bg-[#0f141b] border border-[#1b222c] p-3">
                         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-1"><HiOutlineCurrencyDollar className="text-primary-light" /> Revenue</div>
                         <p className="text-sm font-bold text-white">{formatCurrency(it.monthlyRevenue)}</p>

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { HiOutlineX, HiOutlineSparkles, HiOutlineExclamationCircle } from "react-icons/hi";
 import { HiPaperAirplane } from "react-icons/hi2";
+import Markdown from "@/components/Markdown";
 
 interface Msg {
   role: "user" | "ai";
@@ -91,13 +92,13 @@ export default function AskAiPanel({ open, onClose }: { open: boolean; onClose: 
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap leading-relaxed ${
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   m.role === "user"
-                    ? "bg-primary text-white"
+                    ? "bg-primary text-white whitespace-pre-wrap"
                     : "bg-[#141a22] border border-[#1b222c] text-slate-200"
                 }`}
               >
-                {m.content}
+                {m.role === "user" ? m.content : <Markdown content={m.content} />}
               </div>
             </div>
           ))}

@@ -10,6 +10,7 @@ import {
   HiOutlineTrash,
 } from "react-icons/hi";
 import { HiPaperAirplane, HiOutlineChatBubbleLeftRight, HiOutlineClock } from "react-icons/hi2";
+import Markdown from "@/components/Markdown";
 
 interface ChatMessage {
   role: "user" | "ai";
@@ -21,27 +22,6 @@ interface ChatSession {
   title: string;
   messages: ChatMessage[];
   timestamp: number;
-}
-
-function renderMarkdown(text: string) {
-  const escaped = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-
-  return escaped
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre class="bg-slate-900 text-slate-300 rounded-xl p-4 my-3 overflow-x-auto text-xs leading-relaxed"><code>$2</code></pre>')
-    .replace(/`([^`]+)`/g, '<code class="bg-[#232b36] text-primary-light px-1.5 py-0.5 rounded text-xs">$1</code>')
-    .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold text-white mt-4 mb-2">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold text-white mt-4 mb-2">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold text-white mt-4 mb-2">$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-white">$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^\* (.+)$/gm, '<li class="ml-4 list-disc text-sm leading-relaxed">$1</li>')
-    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc text-sm leading-relaxed">$1</li>')
-    .replace(/^\d+\.\s+(.+)$/gm, '<li class="ml-4 list-decimal text-sm leading-relaxed">$1</li>')
-    .replace(/\n\n/g, '<div class="h-3"></div>')
-    .replace(/\n/g, "<br>");
 }
 
 const quickPrompts = [
@@ -310,10 +290,7 @@ export default function AIAssistantPage() {
                           <HiOutlineDownload className="text-sm" />
                         </button>
                       </div>
-                      <div
-                        className="text-sm text-slate-300 leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }}
-                      />
+                      <Markdown content={msg.content} />
                     </div>
                   </div>
                 )
